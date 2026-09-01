@@ -28,18 +28,18 @@ public class Customer {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 255)
     private String name;
 
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, length = 255)
     private String email;
 
-    @Column(name = "phone")
+    @Column(name = "phone", length = 20)
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "customer_status", nullable = false, length = 255)
+    @Column(name = "customer_status", nullable = false, length = 20)
     private CustomerStatus status;
 
     @CreationTimestamp
