@@ -13,7 +13,14 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Table(name = "customers")
+@Table(
+        name = "customers",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_customer_email",
+                        columnNames = "email"
+                )
+        })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Customer {
     @Id
@@ -24,15 +31,15 @@ public class Customer {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Email
-    @Column(name = "email", nullable = false, unique = true)
+
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "phone")
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "customer_status", nullable = false)
+    @Column(name = "customer_status", nullable = false, length = 255)
     private CustomerStatus status;
 
     @CreationTimestamp
@@ -43,13 +50,9 @@ public class Customer {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
-    public enum CustomerStatus {
-        ACTIVE,
-        INACTIVE
-    }
 
-    public Customer(UUID id, String name, String email, String phone) {
-        this.id = id;
+
+    public Customer(String name, String email, String phone) {
         this.name = name;
         this.email = email;
         this.phone = phone;

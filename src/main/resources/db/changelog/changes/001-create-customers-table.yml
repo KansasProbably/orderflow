@@ -38,12 +38,17 @@ databaseChangeLog:
 
               - column:
                   name: created_at
-                  type: TIMESTAMP
+                  type: TIMESTAMP WITH TIMEZONE
                   constraints:
                     nullable: false
 
               - column:
                   name: updated_at
-                  type: TIMESTAMP
+                  type: TIMESTAMP WITH TIMEZONE
                   constraints:
                     nullable: false
+
+        - addUniqueConstraint:
+            tableName: customers
+            columnNames: email
+            constraintName: uk_customer_email
