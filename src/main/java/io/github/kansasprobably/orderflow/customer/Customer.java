@@ -1,7 +1,6 @@
 package io.github.kansasprobably.orderflow.customer;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
