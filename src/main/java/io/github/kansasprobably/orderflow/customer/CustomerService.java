@@ -1,7 +1,5 @@
-package io.github.kansasprobably.orderflow.customer.service;
+package io.github.kansasprobably.orderflow.customer;
 
-import io.github.kansasprobably.orderflow.customer.Customer;
-import io.github.kansasprobably.orderflow.customer.CustomerRepository;
 import io.github.kansasprobably.orderflow.customer.dto.CreateCustomerRequest;
 import io.github.kansasprobably.orderflow.customer.dto.CustomerResponse;
 import io.github.kansasprobably.orderflow.customer.exception.CustomerEmailAlreadyExistsException;
@@ -28,8 +26,8 @@ public class CustomerService {
             throw new CustomerEmailAlreadyExistsException(createCustomerRequest.email());
         }
         Customer customer = customerMapper.toEntity(createCustomerRequest);
-        customerRepository.save(customer);
-        return customerMapper.toCustomerResponse(customer);
+        Customer savedCustomer = customerRepository.save(customer);
+        return customerMapper.toCustomerResponse(savedCustomer);
     }
 
     public CustomerResponse getCustomerById(UUID id) {

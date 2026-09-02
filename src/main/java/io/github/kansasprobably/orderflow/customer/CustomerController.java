@@ -1,8 +1,7 @@
-package io.github.kansasprobably.orderflow.customer.controller;
+package io.github.kansasprobably.orderflow.customer;
 
 import io.github.kansasprobably.orderflow.customer.dto.CreateCustomerRequest;
 import io.github.kansasprobably.orderflow.customer.dto.CustomerResponse;
-import io.github.kansasprobably.orderflow.customer.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
