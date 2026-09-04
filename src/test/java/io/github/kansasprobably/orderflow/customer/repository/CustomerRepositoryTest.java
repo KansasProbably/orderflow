@@ -8,13 +8,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @DataJpaTest
@@ -23,7 +26,8 @@ class CustomerRepositoryTest {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16");
+    private final static PostgreSQLContainer postgreSQLContainer =
+            new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -76,5 +80,16 @@ class CustomerRepositoryTest {
         boolean exists = customerRepository.existsByEmailIgnoreCase("TeSt@example.com");
 
         assertThat(exists).isTrue();
+    }
+
+    @Test
+    void shouldThrowDataIntegrityViolationExceptionWhenEmailIsDuplicated() {
+        Customer firstCustomer = new Customer("ООО Ромашка", "test@example.com",null);
+        Customer secondCustomer = new Customer("ООО Розочка", "test@example.com",null);
+
+        customerRepository.saveAndFlush(firstCustomer);
+
+        assertThrows(DataIntegrityViolationException.class,
+                () -> customerRepository.saveAndFlush(secondCustomer));
     }
 }

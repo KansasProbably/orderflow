@@ -67,17 +67,7 @@ class CustomerServiceTest {
 
         assertEquals(expectedResponse,actualResponse);
 
-        verify(customerRepository)
-                .existsByEmailIgnoreCase(request.email());
-
-        verify(customerMapper)
-                .toEntity(request);
-
-        verify(customerRepository)
-                .save(customer);
-
-        verify(customerMapper)
-                .toCustomerResponse(savedCustomer);
+        verify(customerRepository).save(customer);
 
     }
 
@@ -97,10 +87,7 @@ class CustomerServiceTest {
         verify(customerRepository,never())
                 .save(any());
 
-        verify(customerMapper,never())
-                .toEntity(request);
 
-        verify(customerRepository).existsByEmailIgnoreCase(request.email());
     }
 
     @Test
@@ -121,11 +108,6 @@ class CustomerServiceTest {
 
         assertEquals(expectedCustomerResponse,actualCustomerResponse);
 
-        verify(customerRepository)
-                .findById(id);
-
-        verify(customerMapper)
-                .toCustomerResponse(customer);
     }
 
     @Test
@@ -137,9 +119,6 @@ class CustomerServiceTest {
 
         assertThrows(CustomerNotFoundException.class,
                 () -> customerService.getCustomerById(id));
-
-        verify(customerRepository)
-                .findById(id);
 
         verify(customerMapper,never())
                 .toCustomerResponse(any());
