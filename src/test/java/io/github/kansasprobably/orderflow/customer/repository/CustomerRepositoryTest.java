@@ -26,7 +26,7 @@ class CustomerRepositoryTest {
 
     @Container
     @ServiceConnection
-    private final static PostgreSQLContainer postgreSQLContainer =
+    private  static final PostgreSQLContainer postgreSQLContainer =
             new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 
     @Autowired
