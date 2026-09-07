@@ -1,0 +1,68 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-stock-table
+      author: kolyan
+      changes:
+        - createTable:
+            tableName: stocks
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: product_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: warehouse_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: available_quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: reserved_quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: stocks
+            baseColumnNames: product_id
+            referencedTableName: products
+            referencedColumnNames: id
+            constraintName: fk_stock_product
+
+        - addForeignKeyConstraint:
+            baseTableName: stocks
+            baseColumnNames: warehouse_id
+            referencedTableName: warehouses
+            referencedColumnNames: id
+            constraintName: fk_stock_warehouse
+
+        - addUniqueConstraint:
+            tableName: stocks
+            columnNames: product_id, warehouse_id
+            constraintName: uk_stock_product_warehouse
+
+        - sql:
+            sql:
+              ALTER TABLE stocks
+              ADD CONSTRAINT ck_stock_available_quantity_non_negative
+              CHECK (available_quantity >= 0);
+              
+              ALTER TABLE stocks
+              ADD CONSTRAINT ck_stock_reserved_quantity_non_negative
+              CHECK (reserved_quantity >= 0);
+
