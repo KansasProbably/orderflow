@@ -55,7 +55,7 @@ databaseChangeLog:
             constraintName: uk_product_sku
 
         - sql:
-            sql:
+            sql: |
               ALTER TABLE products
               ADD CONSTRAINT ck_product_price_positive
               CHECK (price > 0);

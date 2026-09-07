@@ -43,6 +43,7 @@ databaseChangeLog:
             referencedTableName: products
             referencedColumnNames: id
             constraintName: fk_stock_product
+            onDelete: RESTRICT
 
         - addForeignKeyConstraint:
             baseTableName: stocks
@@ -50,6 +51,7 @@ databaseChangeLog:
             referencedTableName: warehouses
             referencedColumnNames: id
             constraintName: fk_stock_warehouse
+            onDelete: RESTRICT
 
         - addUniqueConstraint:
             tableName: stocks
@@ -57,7 +59,7 @@ databaseChangeLog:
             constraintName: uk_stock_product_warehouse
 
         - sql:
-            sql:
+            sql: |
               ALTER TABLE stocks
               ADD CONSTRAINT ck_stock_available_quantity_non_negative
               CHECK (available_quantity >= 0);
