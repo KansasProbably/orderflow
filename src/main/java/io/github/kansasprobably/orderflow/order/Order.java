@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -55,14 +56,30 @@ public class Order {
     }
 
     public void addItem(Product product, Warehouse warehouse, Integer quantity) {
-        OrderItem item = new OrderItem(
+        OrderItem existingItem = items.stream()
+                .filter(item ->
+                        item.getProduct().getId()
+                                .equals(product.getId())
+                        &&
+                        item.getWarehouse().getId()
+                                .equals(warehouse.getId())
+                )
+                .findFirst()
+                .orElse(null);
+
+        if (existingItem != null) {
+            existingItem.increaseQuantity(quantity);
+            return;
+        }
+
+        OrderItem newItem = new OrderItem(
                 this,
                 product,
                 warehouse,
                 quantity,
                 product.getPrice()
         );
-        items.add(item);
+        items.add(newItem);
     }
 
     public void removeItem(OrderItem item) {

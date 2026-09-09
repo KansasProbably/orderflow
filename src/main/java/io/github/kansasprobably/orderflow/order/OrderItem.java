@@ -55,7 +55,12 @@ public class OrderItem {
     public OrderItem(Order order, Product product, Warehouse warehouse, Integer quantity, BigDecimal price) {
         this.order = order;
         this.product = product;
+        this.warehouse = warehouse;
         this.quantity = quantity;
         this.price = price;
+    }
+
+    public void increaseQuantity(Integer quantity) {
+        this.quantity += quantity;
     }
 }

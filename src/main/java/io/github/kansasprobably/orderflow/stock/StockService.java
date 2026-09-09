@@ -13,7 +13,6 @@ public class StockService {
 
     private final StockRepository stockRepository;
 
-    @Transactional
     public Stock reserve(UUID productId, UUID warehouseId, Integer quantity) {
         Stock stock = stockRepository.findByProductIdAndWarehouseId(productId, warehouseId)
                 .orElseThrow(StockNotFoundException::new);
