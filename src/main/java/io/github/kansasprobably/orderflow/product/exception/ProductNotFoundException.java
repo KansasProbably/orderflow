@@ -1,4 +1,4 @@
-package io.github.kansasprobably.orderflow.product.Exception;
+package io.github.kansasprobably.orderflow.product.exception;
 
 import java.util.UUID;
 

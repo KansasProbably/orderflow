@@ -1,6 +1,5 @@
 package io.github.kansasprobably.orderflow.stock;
 
-import io.github.kansasprobably.orderflow.product.Product;
 import io.github.kansasprobably.orderflow.stock.exception.StockNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

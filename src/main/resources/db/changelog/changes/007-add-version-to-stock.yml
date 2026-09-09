@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-version-to-stock
+      author: kolyan
+
+      changes:
+        - addColumn:
+            tableName: stocks
+            columns:
+              - column:
+                  name: version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false

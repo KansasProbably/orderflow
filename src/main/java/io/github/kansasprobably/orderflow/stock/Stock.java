@@ -32,6 +32,10 @@ public class Stock {
     @Column(name = "id")
     private UUID id;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "product_id",
