@@ -4,6 +4,7 @@ import io.github.kansasprobably.orderflow.customer.exception.CustomerEmailAlread
 import io.github.kansasprobably.orderflow.customer.exception.CustomerNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -54,5 +55,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(validationErrorResponse);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLockConflict(
+            ObjectOptimisticLockingFailureException exception
+    ) {
+
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(), "Resource was modified by another request", Instant.now());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(errorResponse);
     }
 }
