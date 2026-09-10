@@ -6,6 +6,7 @@ import io.github.kansasprobably.orderflow.customer.exception.CustomerNotFoundExc
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderItemRequest;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
+import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
 import io.github.kansasprobably.orderflow.stock.Stock;
 import io.github.kansasprobably.orderflow.stock.StockService;
@@ -13,8 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -45,8 +49,11 @@ public class OrderService {
         }
 
         Order savedOrder = orderRepository.save(order);
-        return orderMapper.toResponse(savedOrder);
+        return orderMapper.toOrderResponse(savedOrder);
+    }
 
-
+    public OrderResponse getOrderById(UUID id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
+        return orderMapper.toOrderResponse(order);
     }
 }

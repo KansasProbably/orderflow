@@ -2,6 +2,7 @@ package io.github.kansasprobably.orderflow.common.exception;
 
 import io.github.kansasprobably.orderflow.customer.exception.CustomerEmailAlreadyExistsException;
 import io.github.kansasprobably.orderflow.customer.exception.CustomerNotFoundException;
+import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -65,6 +66,16 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(), "Resource was modified by another request", Instant.now());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleOrderNotFound(
+            OrderNotFoundException exception
+    ) {
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), exception.getMessage(), Instant.now());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(errorResponse);
     }
 }
