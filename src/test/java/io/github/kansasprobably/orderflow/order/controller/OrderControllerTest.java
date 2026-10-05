@@ -74,7 +74,7 @@ public class OrderControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().string(
                         "Location",
-                        "/api/v1/orders" + orderId
+                        "/api/v1/orders/" + orderId
                 ))
                 .andExpect(jsonPath("$.id").value(orderId.toString()));
 
@@ -169,6 +169,40 @@ public class OrderControllerTest {
                         ))
         )
                 .andExpect(status().isBadRequest());
+        verifyNoInteractions(orderService);
+    }
+
+    @Test
+    void shouldReturn400WhenRequestContainsUnknownField() throws Exception {
+        UUID customerId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
+        UUID warehouseId = UUID.randomUUID();
+
+        mockMvc.perform(
+                post("/api/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "customerId": "%s",
+                              "items": [
+                                               {
+                                                 "productId": "%s",
+                                                 "warehouseId": "%s",
+                                                 "quantity": 0
+                                               }
+                                             ],
+                              "unknownField": "value"
+                            }
+                            """.formatted(
+                                customerId,
+                                productId,
+                                warehouseId
+                        ))
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("Unknown field: unknownField"));
+
         verifyNoInteractions(orderService);
     }
 }

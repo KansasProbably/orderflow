@@ -26,7 +26,7 @@ public class OrderController {
         OrderResponse orderResponse = orderService.createOrder(createOrderRequest);
 
         URI location = URI.create(
-                "/api/v1/orders" + orderResponse.id()
+                "/api/v1/orders/" + orderResponse.id()
         );
 
         return ResponseEntity
