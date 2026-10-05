@@ -17,12 +17,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(OrderController.class)
 public class OrderControllerTest {
@@ -36,11 +34,14 @@ public class OrderControllerTest {
     @Test
     void shouldCreateOrder() throws Exception {
         UUID orderId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
+        UUID warehouseId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.parse("2026-01-01T10:00:00Z");
         OffsetDateTime updatedAt = OffsetDateTime.parse("2026-01-02T11:00:00Z");
         OrderResponse orderResponse= new OrderResponse(
                 orderId,
-                UUID.randomUUID(),
+                customerId,
                 OrderStatus.NEW,
                 List.of(),
                 createdAt,
@@ -55,18 +56,26 @@ public class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {
-                              "customerId": "11111111-1111-1111-1111-111111111111",
+                              "customerId": "%s",
                               "items": [
                                                {
-                                                 "productId": "22222222-2222-2222-2222-222222222222",
-                                                 "warehouseId": "22222222-2222-2222-2222-222222222222",
+                                                 "productId": "%s",
+                                                 "warehouseId": "%s",
                                                  "quantity": 1
                                                }
                                              ]
                             }
-                            """)
+                            """.formatted(
+                                    customerId,
+                                    productId,
+                                    warehouseId
+                        ))
                 )
                 .andExpect(status().isCreated())
+                .andExpect(header().string(
+                        "Location",
+                        "/api/v1/orders" + orderId
+                ))
                 .andExpect(jsonPath("$.id").value(orderId.toString()));
 
     }
@@ -84,6 +93,8 @@ public class OrderControllerTest {
                                 """)
         )
                 .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(orderService);
     }
 
     @Test
@@ -129,5 +140,35 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.items").isEmpty());
 
         verify(orderService).getOrderById(orderId);
+    }
+
+    @Test
+    void shouldReturn400WhenOrderItemQuantityIsInvalid() throws Exception {
+        UUID customerId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
+        UUID warehouseId = UUID.randomUUID();
+
+        mockMvc.perform(
+                post("/api/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "customerId": "%s",
+                              "items": [
+                                               {
+                                                 "productId": "%s",
+                                                 "warehouseId": "%s",
+                                                 "quantity": 0
+                                               }
+                                             ]
+                            }
+                            """.formatted(
+                                    customerId,
+                                    productId,
+                                    warehouseId
+                        ))
+        )
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(orderService);
     }
 }

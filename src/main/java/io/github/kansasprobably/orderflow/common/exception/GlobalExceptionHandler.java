@@ -5,10 +5,12 @@ import io.github.kansasprobably.orderflow.customer.exception.CustomerNotFoundExc
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -76,6 +78,20 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), exception.getMessage(), Instant.now());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidJson(
+            HttpMessageNotReadableException exception
+    ) {
+        String message = "Invalid request body";
+        if (exception.getCause() instanceof UnrecognizedPropertyException cause) {
+            message = "Unknown field: " + cause.getPropertyName();
+        }
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message, Instant.now());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
 }

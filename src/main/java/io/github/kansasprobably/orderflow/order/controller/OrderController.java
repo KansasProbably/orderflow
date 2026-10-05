@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -24,8 +25,12 @@ public class OrderController {
     ) {
         OrderResponse orderResponse = orderService.createOrder(createOrderRequest);
 
+        URI location = URI.create(
+                "/api/v1/orders" + orderResponse.id()
+        );
+
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .created(location)
                 .body(orderResponse);
     }
 
