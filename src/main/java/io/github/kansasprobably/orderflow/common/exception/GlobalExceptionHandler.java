@@ -3,7 +3,7 @@ package io.github.kansasprobably.orderflow.common.exception;
 import io.github.kansasprobably.orderflow.customer.exception.CustomerEmailAlreadyExistsException;
 import io.github.kansasprobably.orderflow.customer.exception.CustomerNotFoundException;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
-import io.github.kansasprobably.orderflow.product.exception.InvalidOrderStatusTransitionException;
+import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -15,7 +15,6 @@ import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 @RestControllerAdvice

@@ -1,4 +1,4 @@
-package io.github.kansasprobably.orderflow.product.exception;
+package io.github.kansasprobably.orderflow.order.exception;
 
 import io.github.kansasprobably.orderflow.order.OrderStatus;
 

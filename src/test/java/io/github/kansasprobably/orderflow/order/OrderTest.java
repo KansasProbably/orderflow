@@ -1,7 +1,7 @@
 package io.github.kansasprobably.orderflow.order;
 
 import io.github.kansasprobably.orderflow.customer.Customer;
-import io.github.kansasprobably.orderflow.product.exception.InvalidOrderStatusTransitionException;
+import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

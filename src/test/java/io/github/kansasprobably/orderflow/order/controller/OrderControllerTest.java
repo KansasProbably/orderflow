@@ -205,4 +205,71 @@ public class OrderControllerTest {
 
         verifyNoInteractions(orderService);
     }
+
+    @Test
+    void shouldConfirmOrder() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        OffsetDateTime updatedAt = OffsetDateTime.parse("2026-01-02T11:00:00Z");
+
+        OrderResponse orderResponse = new OrderResponse(
+                orderId,
+                customerId,
+                OrderStatus.CONFIRMED,
+                List.of(),
+                createdAt,
+                updatedAt
+        );
+
+        when(orderService.confirmOrder(orderId))
+                .thenReturn(orderResponse);
+
+        mockMvc.perform(
+                post("/api/v1/orders/{id}/confirm", orderId)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id")
+                        .value(orderId.toString()))
+                .andExpect(jsonPath("$.customerId")
+                    .value(customerId.toString()))
+                .andExpect(jsonPath("$.orderStatus")
+                        .value("CONFIRMED"));
+
+
+        verify(orderService).confirmOrder(orderId);
+    }
+
+    @Test
+    void shouldCancelOrder() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        OffsetDateTime updatedAt = OffsetDateTime.parse("2026-01-02T11:00:00Z");
+
+        OrderResponse orderResponse = new OrderResponse(
+                orderId,
+                customerId,
+                OrderStatus.CANCELLED,
+                List.of(),
+                createdAt,
+                updatedAt
+        );
+
+        when(orderService.cancelOrder(orderId))
+                .thenReturn(orderResponse);
+
+        mockMvc.perform(
+                        post("/api/v1/orders/{id}/cancel", orderId)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id")
+                        .value(orderId.toString()))
+                .andExpect(jsonPath("$.customerId")
+                        .value(customerId.toString()))
+                .andExpect(jsonPath("$.orderStatus")
+                        .value("CANCELLED"));
+
+        verify(orderService).cancelOrder(orderId);
+    }
 }

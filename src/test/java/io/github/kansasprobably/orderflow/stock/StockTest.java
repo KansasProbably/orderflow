@@ -97,6 +97,51 @@ public class StockTest {
 
     }
 
+    @Test
+    void shouldNotReserveNonPositiveQuantity() {
+        Product product = createProduct();
+        Warehouse warehouse = createWarehouse();
+
+        Stock stock = new Stock(
+                product,
+                warehouse,
+                10,
+                0
+        );
+
+        assertThatThrownBy(() -> stock.reserve(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(stock.getAvailableQuantity())
+                .isEqualTo(10);
+        assertThat(stock.getReservedQuantity())
+                .isEqualTo(0);
+
+    }
+
+    @Test
+    void shouldNotReleaseNonPositiveQuantity() {
+        Product product = createProduct();
+        Warehouse warehouse = createWarehouse();
+
+        Stock stock = new Stock(
+                product,
+                warehouse,
+                7,
+                3
+        );
+
+        assertThatThrownBy(() -> stock.release(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(stock.getAvailableQuantity())
+                .isEqualTo(7);
+        assertThat(stock.getReservedQuantity())
+                .isEqualTo(3);
+
+    }
+
+
     private Product createProduct() {
         return new Product(
                 "SKU-01",

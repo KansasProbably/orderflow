@@ -11,7 +11,7 @@ import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import io.github.kansasprobably.orderflow.product.Product;
 import io.github.kansasprobably.orderflow.product.ProductRepository;
-import io.github.kansasprobably.orderflow.product.exception.InvalidOrderStatusTransitionException;
+import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
 import io.github.kansasprobably.orderflow.stock.Stock;
 import io.github.kansasprobably.orderflow.stock.StockRepository;
 import io.github.kansasprobably.orderflow.stock.exception.InsufficientReservedStockException;

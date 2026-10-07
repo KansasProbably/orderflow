@@ -67,6 +67,9 @@ public class Stock {
     }
 
     public void reserve(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
         if (availableQuantity < quantity) {
             throw new InsufficientStockException();
         }
@@ -75,6 +78,9 @@ public class Stock {
     }
 
     public void release (Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
         if (reservedQuantity < quantity) {
             throw new InsufficientReservedStockException(reservedQuantity, quantity);
         }
