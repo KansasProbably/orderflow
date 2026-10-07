@@ -2,6 +2,7 @@ package io.github.kansasprobably.orderflow.order;
 
 import io.github.kansasprobably.orderflow.customer.Customer;
 import io.github.kansasprobably.orderflow.product.Product;
+import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
 import io.github.kansasprobably.orderflow.warehouse.Warehouse;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -25,6 +26,10 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
     private UUID id;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
@@ -86,11 +91,24 @@ public class Order {
     }
 
     public void confirm() {
-        this.status = OrderStatus.CONFIRMED;
+        if (status != OrderStatus.NEW) {
+            throw new InvalidOrderStatusTransitionException(status, OrderStatus.CONFIRMED);
+        }
+        status = OrderStatus.CONFIRMED;
     }
 
     public void cancel() {
-        this.status = OrderStatus.CANCELLED;
+        if (status != OrderStatus.NEW && status != OrderStatus.CONFIRMED) {
+            throw new InvalidOrderStatusTransitionException(status, OrderStatus.CANCELLED);
+        }
+        status = OrderStatus.CANCELLED;
+    }
+
+    public void complete() {
+        if (status != OrderStatus.CONFIRMED) {
+            throw new InvalidOrderStatusTransitionException(status, OrderStatus.COMPLETED);
+        }
+        status = OrderStatus.COMPLETED;
     }
 
 }

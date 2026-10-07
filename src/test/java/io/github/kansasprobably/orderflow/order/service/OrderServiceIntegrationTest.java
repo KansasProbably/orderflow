@@ -1,14 +1,20 @@
-package io.github.kansasprobably.orderflow.order;
+package io.github.kansasprobably.orderflow.order.service;
 
 import io.github.kansasprobably.orderflow.customer.Customer;
 import io.github.kansasprobably.orderflow.customer.CustomerRepository;
+import io.github.kansasprobably.orderflow.order.Order;
+import io.github.kansasprobably.orderflow.order.OrderRepository;
+import io.github.kansasprobably.orderflow.order.OrderService;
+import io.github.kansasprobably.orderflow.order.OrderStatus;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderItemRequest;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import io.github.kansasprobably.orderflow.product.Product;
 import io.github.kansasprobably.orderflow.product.ProductRepository;
+import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
 import io.github.kansasprobably.orderflow.stock.Stock;
 import io.github.kansasprobably.orderflow.stock.StockRepository;
+import io.github.kansasprobably.orderflow.stock.exception.InsufficientReservedStockException;
 import io.github.kansasprobably.orderflow.stock.exception.InsufficientStockException;
 import io.github.kansasprobably.orderflow.stock.exception.StockNotFoundException;
 import io.github.kansasprobably.orderflow.warehouse.Warehouse;
@@ -419,6 +425,183 @@ public class OrderServiceIntegrationTest {
 
         assertThat(actualStock.getReservedQuantity())
                 .isEqualTo(1);
+    }
+
+    @Test
+    void shouldCancelOrderAndReleaseStock() {
+        Customer customer = createCustomer();
+
+        Product product = createProduct("SKU-001",
+                "iphone",
+                new BigDecimal("70000.00")
+        );
+
+        Warehouse warehouse = createWarehouse();
+
+        Stock stock = createStock(product,warehouse,10,0);
+
+        CreateOrderRequest request = new CreateOrderRequest(
+                customer.getId(),
+                List.of(
+                        new CreateOrderItemRequest(
+                                warehouse.getId(),
+                                product.getId(),
+                                3
+                        )
+                )
+
+        );
+
+        OrderResponse createdOrder = orderService.createOrder(request);
+
+        OrderResponse cancelledOrder = orderService.cancelOrder(createdOrder.id());
+
+        Stock stockAfterCancellation = stockRepository.findById(stock.getId())
+                .orElseThrow();
+
+        Order orderAfterCancellation = orderRepository.findById(createdOrder.id())
+                .orElseThrow();
+
+        assertThat(cancelledOrder.orderStatus())
+                .isEqualTo(OrderStatus.CANCELLED);
+        assertThat(orderAfterCancellation.getStatus())
+                .isEqualTo(OrderStatus.CANCELLED);
+
+        assertThat(stockAfterCancellation.getAvailableQuantity())
+                .isEqualTo(10);
+
+        assertThat(stockAfterCancellation.getReservedQuantity())
+                .isEqualTo(0);
+
+    }
+
+    @Test
+    void shouldNotReleaseStockWhenOrderCancelledTwice() {
+
+        Customer customer = createCustomer();
+
+        Product product = createProduct("SKU-001",
+                "iphone",
+                new BigDecimal("70000.00")
+        );
+
+        Warehouse warehouse = createWarehouse();
+
+        Stock stock = createStock(product, warehouse, 10, 0);
+
+        CreateOrderRequest request = new CreateOrderRequest(
+                customer.getId(),
+                List.of(
+                        new CreateOrderItemRequest(
+                                warehouse.getId(),
+                                product.getId(),
+                                3
+                        )
+                )
+
+        );
+
+        OrderResponse createdOrder = orderService.createOrder(request);
+
+        orderService.cancelOrder(createdOrder.id());
+
+        assertThatThrownBy(() ->
+                orderService.cancelOrder(createdOrder.id())
+        )
+                .isInstanceOf(
+                        InvalidOrderStatusTransitionException.class
+                );
+        Stock stockAfterSecondCancellation = stockRepository.findById(stock.getId())
+                .orElseThrow();
+
+        Order orderAfterSecondCancellation = orderRepository.findById(createdOrder.id())
+                .orElseThrow();
+
+        assertThat(stockAfterSecondCancellation.getAvailableQuantity())
+                .isEqualTo(10);
+        assertThat(stockAfterSecondCancellation.getReservedQuantity())
+                .isEqualTo(0);
+
+        assertThat(orderAfterSecondCancellation.getStatus())
+                .isEqualTo(OrderStatus.CANCELLED);
+
+    }
+
+    @Test
+    void shouldRollbackCancellationWhenStockReleaseFails() {
+        Customer customer = createCustomer();
+
+        Product firstProduct = createProduct("SKU-001",
+                "iphone",
+                new BigDecimal("70000.00")
+        );
+
+        Product secondProduct = createProduct("SKU-002",
+                "samsung",
+                new BigDecimal("60000.00")
+        );
+
+        Warehouse warehouse = createWarehouse();
+
+        Stock firstStock = createStock(firstProduct,warehouse,10,0);
+        Stock secondStock = createStock(secondProduct,warehouse,10,0);
+
+        CreateOrderRequest request = new CreateOrderRequest(
+                customer.getId(),
+                List.of(
+                        new CreateOrderItemRequest(
+                                warehouse.getId(),
+                                firstProduct.getId(),
+                                2
+                        ),
+                        new CreateOrderItemRequest(
+                                warehouse.getId(),
+                                secondProduct.getId(),
+                                2
+                        )
+                )
+        );
+
+        OrderResponse createdOrder = orderService.createOrder(request);
+
+        jdbcTemplate.update(
+                """
+                UPDATE stocks
+                SET reserved_quantity = 0
+                WHERE id = ?
+                """,
+                secondStock.getId()
+        );
+
+        assertThatThrownBy(
+                () -> orderService.cancelOrder(createdOrder.id()))
+                    .isInstanceOf(InsufficientReservedStockException.class);
+
+        Stock firstStockAfterRollback = stockRepository
+                .findById(firstStock.getId())
+                .orElseThrow();
+
+        Stock secondStockAfterRollback = stockRepository
+                .findById(secondStock.getId())
+                .orElseThrow();
+
+        Order orderAfterRollback = orderRepository.findById(createdOrder.id())
+                .orElseThrow();
+
+        assertThat(firstStockAfterRollback.getAvailableQuantity())
+                .isEqualTo(8);
+
+        assertThat(firstStockAfterRollback.getReservedQuantity())
+                .isEqualTo(2);
+
+        assertThat(secondStockAfterRollback.getAvailableQuantity())
+                .isEqualTo(8);
+
+        assertThat(secondStockAfterRollback.getReservedQuantity())
+                .isEqualTo(0);
+
+        assertThat(orderAfterRollback.getStatus())
+                .isEqualTo(OrderStatus.NEW);
     }
 
     private Product createProduct(String sku, String name, BigDecimal price) {

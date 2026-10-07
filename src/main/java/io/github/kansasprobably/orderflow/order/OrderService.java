@@ -56,4 +56,31 @@ public class OrderService {
         Order order = orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
         return orderMapper.toOrderResponse(order);
     }
+
+    @Transactional
+    public OrderResponse confirmOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        order.confirm();
+
+        return orderMapper.toOrderResponse(order);
+    }
+
+    @Transactional
+    public OrderResponse cancelOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        order.cancel();
+
+        for (OrderItem item : order.getItems()) {
+            stockService.release(
+                    item.getProduct().getId(),
+                    item.getWarehouse().getId(),
+                    item.getQuantity()
+            );
+        }
+        return orderMapper.toOrderResponse(order);
+    }
 }

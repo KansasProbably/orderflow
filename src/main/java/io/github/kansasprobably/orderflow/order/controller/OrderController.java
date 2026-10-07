@@ -40,4 +40,18 @@ public class OrderController {
     ) {
         return orderService.getOrderById(id);
     }
+
+    @PostMapping("/{id}/confirm")
+    public OrderResponse confirmOrder(
+            @PathVariable UUID id
+    ) {
+        return orderService.confirmOrder(id);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public OrderResponse cancelOrder(
+            @PathVariable UUID id
+    ) {
+        return orderService.cancelOrder(id);
+    }
 }
