@@ -1,6 +1,7 @@
 package io.github.kansasprobably.orderflow.stock;
 
 import io.github.kansasprobably.orderflow.product.Product;
+import io.github.kansasprobably.orderflow.stock.exception.InsufficientReservedStockException;
 import io.github.kansasprobably.orderflow.stock.exception.InsufficientStockException;
 import io.github.kansasprobably.orderflow.warehouse.Warehouse;
 import jakarta.persistence.*;
@@ -71,5 +72,14 @@ public class Stock {
         }
         availableQuantity -= quantity;
         reservedQuantity += quantity;
+    }
+
+    public void release (Integer quantity) {
+        if (reservedQuantity < quantity) {
+            throw new InsufficientReservedStockException(reservedQuantity, quantity);
+        }
+
+        reservedQuantity -= quantity;
+        availableQuantity += quantity;
     }
 }

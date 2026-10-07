@@ -3,6 +3,7 @@ package io.github.kansasprobably.orderflow.common.exception;
 import io.github.kansasprobably.orderflow.customer.exception.CustomerEmailAlreadyExistsException;
 import io.github.kansasprobably.orderflow.customer.exception.CustomerNotFoundException;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
+import io.github.kansasprobably.orderflow.product.exception.InvalidOrderStatusTransitionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,6 +15,7 @@ import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -92,6 +94,21 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message, Instant.now());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidOrderStatusTransitionException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOrderStatusTransition(
+            InvalidOrderStatusTransitionException exception
+    ) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                exception.getMessage(),
+                Instant.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(errorResponse);
     }
 }

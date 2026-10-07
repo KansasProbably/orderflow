@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-version-to-order
+      author: kolyan
+
+      changes:
+        - addColumn:
+            tableName: orders
+            columns:
+              - column:
+                  name: version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false

@@ -19,4 +19,11 @@ public class StockService {
         stock.reserve(quantity);
         return stock;
     }
+
+    public Stock release(UUID productId, UUID warehouseId, Integer quantity) {
+        Stock stock = stockRepository.findByProductIdAndWarehouseId(productId,warehouseId)
+                .orElseThrow(StockNotFoundException::new);
+        stock.release(quantity);
+        return stock;
+    }
 }
