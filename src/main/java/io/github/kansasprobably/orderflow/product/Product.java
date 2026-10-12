@@ -58,4 +58,8 @@ public class Product {
         this.price = price;
         this.status = ProductStatus.ACTIVE;
     }
+
+    public void changeStatus(ProductStatus status) {
+        this.status = status;
+    }
 }

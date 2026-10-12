@@ -88,4 +88,23 @@ public class Stock {
         reservedQuantity -= quantity;
         availableQuantity += quantity;
     }
+
+    public void increaseAvailable(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+
+        availableQuantity += quantity;
+    }
+
+    public Stock(
+            Product product,
+            Warehouse warehouse,
+            Integer availableQuantity
+    ) {
+        this.product = product;
+        this.warehouse = warehouse;
+        this.availableQuantity = availableQuantity;
+        this.reservedQuantity = 0;
+    }
 }
