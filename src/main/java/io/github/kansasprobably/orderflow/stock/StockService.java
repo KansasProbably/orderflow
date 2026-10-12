@@ -19,6 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StockService {
 
     private final StockRepository stockRepository;
@@ -26,6 +27,7 @@ public class StockService {
     private final ProductRepository productRepository;
     private final StockMapper stockMapper;
 
+    @Transactional
     public Stock reserve(UUID productId, UUID warehouseId, Integer quantity) {
         Stock stock = stockRepository.findByProductIdAndWarehouseId(productId, warehouseId)
                 .orElseThrow(() -> new StockNotFoundException(productId, warehouseId));
@@ -34,6 +36,7 @@ public class StockService {
         return stock;
     }
 
+    @Transactional
     public Stock release(UUID productId, UUID warehouseId, Integer quantity) {
         Stock stock = stockRepository.findByProductIdAndWarehouseId(productId,warehouseId)
                 .orElseThrow(() -> new StockNotFoundException(productId, warehouseId));
@@ -79,7 +82,6 @@ public class StockService {
         );
     }
 
-    @Transactional(readOnly = true)
     public StockResponse getStockById(UUID id) {
         Stock stock = stockRepository.findById(id)
                 .orElseThrow(() -> new StockNotFoundException(id));
@@ -87,7 +89,6 @@ public class StockService {
         return  stockMapper.toStockResponse(stock);
     }
 
-    @Transactional(readOnly = true)
     public StockResponse getStockByProductIdAndWarehouseId(UUID productId, UUID warehouseId) {
         Stock stock = stockRepository.findByProductIdAndWarehouseId(productId, warehouseId)
                 .orElseThrow(() -> new StockNotFoundException(productId, warehouseId));

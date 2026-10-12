@@ -26,14 +26,14 @@ public class WarehouseController {
     ){
         WarehouseResponse response = warehouseService.createWarehouse(request);
         URI location = URI.create(
-                "api/v1/warehouses/" + response.id()
+                "/api/v1/warehouses/" + response.id()
         );
         return ResponseEntity
                 .created(location)
                 .body(response);
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public WarehouseResponse getWarehouseById(@PathVariable UUID id) {
         return warehouseService.getWarehouseById(id);
     }

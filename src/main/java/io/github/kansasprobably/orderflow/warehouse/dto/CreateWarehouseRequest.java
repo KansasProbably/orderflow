@@ -8,6 +8,7 @@ public record CreateWarehouseRequest(
         @Size(max = 32)
         String code,
 
+        @NotBlank
         @Size(max = 255)
         String name
 ) {
