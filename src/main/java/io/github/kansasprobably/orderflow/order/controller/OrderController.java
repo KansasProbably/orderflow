@@ -5,7 +5,6 @@ import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

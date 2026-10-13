@@ -77,7 +77,8 @@ public class OrderControllerTest {
                         "/api/v1/orders/" + orderId
                 ))
                 .andExpect(jsonPath("$.id").value(orderId.toString()));
-
+        verify(orderService)
+                .createOrder(any(CreateOrderRequest.class));
     }
 
     @Test
