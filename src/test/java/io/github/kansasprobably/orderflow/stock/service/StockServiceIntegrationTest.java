@@ -135,7 +135,7 @@ public class StockServiceIntegrationTest {
                 0
         );
 
-        Stock diplicateStock = new Stock(
+        Stock duplicateStock = new Stock(
                 product,
                 warehouse,
                 20,
@@ -145,7 +145,7 @@ public class StockServiceIntegrationTest {
         stockRepository.saveAndFlush(firstStock);
 
         assertThatThrownBy(
-                () -> stockRepository.saveAndFlush(diplicateStock)
+                () -> stockRepository.saveAndFlush(duplicateStock)
         )
                 .isInstanceOf(DataIntegrityViolationException.class);
 

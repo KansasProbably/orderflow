@@ -1,9 +1,5 @@
 package io.github.kansasprobably.orderflow.warehouse;
 
-import io.github.kansasprobably.orderflow.product.Product;
-import io.github.kansasprobably.orderflow.product.dto.ProductResponse;
-import io.github.kansasprobably.orderflow.product.exception.DuplicateProductSkuException;
-import io.github.kansasprobably.orderflow.product.exception.ProductNotFoundException;
 import io.github.kansasprobably.orderflow.warehouse.dto.CreateWarehouseRequest;
 import io.github.kansasprobably.orderflow.warehouse.dto.WarehouseResponse;
 import io.github.kansasprobably.orderflow.warehouse.exception.DuplicateWarehouseCodeException;

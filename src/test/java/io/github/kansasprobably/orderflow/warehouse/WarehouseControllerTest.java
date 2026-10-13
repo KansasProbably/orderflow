@@ -1,12 +1,5 @@
 package io.github.kansasprobably.orderflow.warehouse;
 
-import io.github.kansasprobably.orderflow.product.ProductService;
-import io.github.kansasprobably.orderflow.product.ProductStatus;
-import io.github.kansasprobably.orderflow.product.dto.CreateProductRequest;
-import io.github.kansasprobably.orderflow.product.dto.ProductResponse;
-import io.github.kansasprobably.orderflow.product.dto.UpdateProductStatusRequest;
-import io.github.kansasprobably.orderflow.product.exception.DuplicateProductSkuException;
-import io.github.kansasprobably.orderflow.product.exception.ProductNotFoundException;
 import io.github.kansasprobably.orderflow.warehouse.controller.WarehouseController;
 import io.github.kansasprobably.orderflow.warehouse.dto.CreateWarehouseRequest;
 import io.github.kansasprobably.orderflow.warehouse.dto.WarehouseResponse;
@@ -19,16 +12,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(WarehouseController.class)
 public class WarehouseControllerTest {

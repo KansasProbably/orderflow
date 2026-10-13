@@ -1,7 +1,6 @@
 package io.github.kansasprobably.orderflow.stock.mapper;
 
 import io.github.kansasprobably.orderflow.stock.Stock;
-import io.github.kansasprobably.orderflow.stock.dto.CreateStockRequest;
 import io.github.kansasprobably.orderflow.stock.dto.StockResponse;
 import org.springframework.stereotype.Component;
 

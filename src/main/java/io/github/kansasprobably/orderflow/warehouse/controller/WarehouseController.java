@@ -1,6 +1,5 @@
 package io.github.kansasprobably.orderflow.warehouse.controller;
 
-import io.github.kansasprobably.orderflow.warehouse.Warehouse;
 import io.github.kansasprobably.orderflow.warehouse.WarehouseService;
 import io.github.kansasprobably.orderflow.warehouse.dto.CreateWarehouseRequest;
 import io.github.kansasprobably.orderflow.warehouse.dto.WarehouseResponse;
