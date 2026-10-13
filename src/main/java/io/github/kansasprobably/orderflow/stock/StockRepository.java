@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface StockRepository extends JpaRepository<Stock, UUID> {
     Optional<Stock> findByProductIdAndWarehouseId(UUID productId, UUID warehouseId);
-    boolean existsStockByProductIdAndWarehouseId(UUID productId, UUID warehouseId);
+    boolean existsByProductIdAndWarehouseId(UUID productId, UUID warehouseId);
 }

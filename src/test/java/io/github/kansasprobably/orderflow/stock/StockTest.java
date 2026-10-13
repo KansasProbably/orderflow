@@ -141,6 +141,44 @@ public class StockTest {
 
     }
 
+    @Test
+    void shouldIncreaseAvailableQuantity() {
+        Product product = createProduct();
+        Warehouse warehouse = createWarehouse();
+        Stock stock = new Stock(
+                product,
+                warehouse,
+                7,
+                0
+        );
+
+        stock.increaseAvailable(3);
+        assertThat(stock.getAvailableQuantity())
+                .isEqualTo(10);
+        assertThat(stock.getReservedQuantity())
+                .isEqualTo(0);
+    }
+
+    @Test
+    void shouldNotIncreaseAvailableQuantity() {
+        Product product = createProduct();
+        Warehouse warehouse = createWarehouse();
+        Stock stock = new Stock(
+                product,
+                warehouse,
+                7,
+                0
+        );
+
+        assertThatThrownBy(() -> stock.increaseAvailable(0))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(stock.getAvailableQuantity())
+                .isEqualTo(7);
+        assertThat(stock.getReservedQuantity())
+                .isEqualTo(0);
+
+    }
+
 
     private Product createProduct() {
         return new Product(

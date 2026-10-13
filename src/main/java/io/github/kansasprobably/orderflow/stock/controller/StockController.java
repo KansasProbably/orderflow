@@ -51,6 +51,6 @@ public class StockController {
             @PathVariable UUID id,
             @Valid @RequestBody IncreaseStockRequest request
     ) {
-        return stockService.increaseAvailable(id, request.quantity());
+        return stockService.increaseAvailable(id, request);
     }
 }

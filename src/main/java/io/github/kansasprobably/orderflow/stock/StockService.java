@@ -4,6 +4,7 @@ import io.github.kansasprobably.orderflow.product.Product;
 import io.github.kansasprobably.orderflow.product.ProductRepository;
 import io.github.kansasprobably.orderflow.product.exception.ProductNotFoundException;
 import io.github.kansasprobably.orderflow.stock.dto.CreateStockRequest;
+import io.github.kansasprobably.orderflow.stock.dto.IncreaseStockRequest;
 import io.github.kansasprobably.orderflow.stock.dto.StockResponse;
 import io.github.kansasprobably.orderflow.stock.exception.DuplicateStockException;
 import io.github.kansasprobably.orderflow.stock.exception.StockNotFoundException;
@@ -52,7 +53,7 @@ public class StockService {
         Warehouse warehouse = warehouseRepository.findById(request.warehouseId())
                 .orElseThrow(() -> new WarehouseNotFoundException(request.warehouseId()));
 
-        if (stockRepository.existsStockByProductIdAndWarehouseId(request.productId(), request.warehouseId())) {
+        if (stockRepository.existsByProductIdAndWarehouseId(request.productId(), request.warehouseId())) {
             throw new DuplicateStockException(request.productId(), request.warehouseId());
         }
 
@@ -68,18 +69,12 @@ public class StockService {
     }
 
     @Transactional
-    public StockResponse increaseAvailable(UUID id, Integer quantity) {
+    public StockResponse increaseAvailable(UUID id, IncreaseStockRequest request) {
         Stock stock = stockRepository.findById(id)
                 .orElseThrow(() -> new StockNotFoundException(id));
 
-        stock.increaseAvailable(quantity);
-        return new StockResponse(
-                stock.getId(),
-                stock.getProduct().getId(),
-                stock.getWarehouse().getId(),
-                stock.getAvailableQuantity(),
-                stock.getReservedQuantity()
-        );
+        stock.increaseAvailable(request.quantity());
+        return stockMapper.toStockResponse(stock);
     }
 
     public StockResponse getStockById(UUID id) {

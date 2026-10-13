@@ -102,6 +102,11 @@ public class Stock {
             Warehouse warehouse,
             Integer availableQuantity
     ) {
+        if (availableQuantity == null || availableQuantity < 0) {
+            throw new IllegalArgumentException(
+                    "Available quantity must not be negative"
+            );
+        }
         this.product = product;
         this.warehouse = warehouse;
         this.availableQuantity = availableQuantity;
