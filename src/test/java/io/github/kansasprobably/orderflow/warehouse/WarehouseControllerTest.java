@@ -116,7 +116,7 @@ public class WarehouseControllerTest {
         UUID warehouseId = UUID.randomUUID();
 
         when(warehouseService.getWarehouseById(warehouseId))
-                .thenThrow(WarehouseNotFoundException.class);
+                .thenThrow(new WarehouseNotFoundException(warehouseId));
 
         mockMvc.perform(get("/api/v1/warehouses/{id}", warehouseId)
                 )
@@ -132,7 +132,7 @@ public class WarehouseControllerTest {
                         .content("""
                             {
                               "code": "",
-                              "name": "",
+                              "name": ""
                             }
                             """)
                 )

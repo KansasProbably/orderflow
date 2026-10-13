@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -117,6 +118,36 @@ public class StockServiceIntegrationTest {
                 () -> stockService.createStock(secondRequest)
         )
                 .isInstanceOf(DuplicateStockException.class);
+
+        assertThat(stockRepository.count())
+                .isEqualTo(1);
+    }
+
+    @Test
+    void shouldNotPersistDuplicateProductWarehouseStock() {
+        Product product = createProduct();
+        Warehouse warehouse = createWarehouse();
+
+        Stock firstStock = new Stock(
+                product,
+                warehouse,
+                10,
+                0
+        );
+
+        Stock diplicateStock = new Stock(
+                product,
+                warehouse,
+                20,
+                0
+        );
+
+        stockRepository.saveAndFlush(firstStock);
+
+        assertThatThrownBy(
+                () -> stockRepository.saveAndFlush(diplicateStock)
+        )
+                .isInstanceOf(DataIntegrityViolationException.class);
 
         assertThat(stockRepository.count())
                 .isEqualTo(1);

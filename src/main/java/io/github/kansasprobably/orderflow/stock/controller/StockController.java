@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.UUID;
 
-import static org.springframework.http.client.observation.ClientHttpObservationDocumentation.LowCardinalityKeyNames.URI;
+
 
 @RestController
 @RequestMapping("/api/v1/stocks")
@@ -26,7 +26,7 @@ public class StockController {
             @Valid @RequestBody  CreateStockRequest request) {
         StockResponse response = stockService.createStock(request);
 
-        URI location = java.net.URI.create("/api/v1/stocks/" + response.id());
+        URI location = URI.create("/api/v1/stocks/" + response.id());
 
         return ResponseEntity
                 .created(location)

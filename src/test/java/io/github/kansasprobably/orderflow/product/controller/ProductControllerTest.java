@@ -125,7 +125,7 @@ public class ProductControllerTest {
         UUID productId = UUID.randomUUID();
 
         when(productService.getProductById(productId))
-                .thenThrow(ProductNotFoundException.class);
+                .thenThrow(new ProductNotFoundException(productId));
 
         mockMvc.perform(get("/api/v1/products/{id}", productId)
         )

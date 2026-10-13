@@ -7,9 +7,6 @@ import io.github.kansasprobably.orderflow.stock.dto.IncreaseStockRequest;
 import io.github.kansasprobably.orderflow.stock.dto.StockResponse;
 import io.github.kansasprobably.orderflow.stock.exception.DuplicateStockException;
 import io.github.kansasprobably.orderflow.stock.exception.StockNotFoundException;
-import io.github.kansasprobably.orderflow.warehouse.dto.CreateWarehouseRequest;
-import io.github.kansasprobably.orderflow.warehouse.dto.WarehouseResponse;
-import io.github.kansasprobably.orderflow.warehouse.exception.WarehouseNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -119,11 +116,11 @@ public class StockControllerTest {
     }
 
     @Test
-    void shouldReturn404WhenWarehouseNotFound() throws Exception {
+    void shouldReturn404WhenStockNotFound() throws Exception {
         UUID stockId = UUID.randomUUID();
 
         when(stockService.getStockById(stockId))
-                .thenThrow(StockNotFoundException.class);
+                .thenThrow(new StockNotFoundException(stockId));
 
         mockMvc.perform(get("/api/v1/stocks/{id}", stockId)
                 )
