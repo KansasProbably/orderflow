@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Locale;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProductSpecifications {
 
@@ -21,7 +23,7 @@ public final class ProductSpecifications {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")),
-                        "%" + name.toLowerCase() + "%"
+                        "%" + name.toLowerCase(Locale.ROOT) + "%"
                 );
     }
 

@@ -12,7 +12,6 @@ import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
 import io.github.kansasprobably.orderflow.product.Product;
 import io.github.kansasprobably.orderflow.product.ProductRepository;
-import io.github.kansasprobably.orderflow.product.dto.ProductResponse;
 import io.github.kansasprobably.orderflow.stock.Stock;
 import io.github.kansasprobably.orderflow.stock.StockRepository;
 import io.github.kansasprobably.orderflow.stock.exception.InsufficientReservedStockException;
@@ -40,7 +39,6 @@ import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
-
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -886,7 +884,7 @@ public class OrderServiceIntegrationTest {
     }
 
     @Test
-    void shouldReturnRequestedProductPage() {
+    void shouldReturnRequestedOrderPage() {
         Customer customer = createCustomer();
         Order firstOrder = new Order(customer);
         Order secondOrder = new Order(customer);

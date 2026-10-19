@@ -1,6 +1,5 @@
 package io.github.kansasprobably.orderflow.order;
 
-import io.github.kansasprobably.orderflow.product.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
