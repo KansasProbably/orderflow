@@ -8,12 +8,18 @@ import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
+import io.github.kansasprobably.orderflow.order.specification.OrderSpecifications;
 import io.github.kansasprobably.orderflow.stock.Stock;
 import io.github.kansasprobably.orderflow.stock.StockService;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Service
@@ -82,5 +88,35 @@ public class OrderService {
             );
         }
         return orderMapper.toOrderResponse(order);
+    }
+
+    public Page<OrderResponse> getOrders(
+            OrderStatus status,
+            UUID customerId,
+            OffsetDateTime createdFrom,
+            OffsetDateTime createdTo,
+            Pageable pageable
+    ) {
+
+        Specification<Order> specification = Specification.unrestricted();
+
+        if (status != null) {
+            specification = specification.and(OrderSpecifications.hasStatus(status));
+        }
+
+        if (customerId != null) {
+            specification = specification.and(OrderSpecifications.hasCustomerId(customerId));
+        }
+
+        if (createdFrom != null) {
+            specification = specification.and(OrderSpecifications.hasBeenCreatedFrom(createdFrom));
+        }
+
+        if (createdTo != null) {
+            specification = specification.and(OrderSpecifications.hasBeenCreatedTo(createdTo));
+        }
+
+        return orderRepository.findAll(specification,pageable)
+                .map(orderMapper::toOrderResponse);
     }
 }

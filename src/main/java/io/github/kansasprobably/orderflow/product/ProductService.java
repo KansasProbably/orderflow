@@ -6,7 +6,11 @@ import io.github.kansasprobably.orderflow.product.dto.UpdateProductStatusRequest
 import io.github.kansasprobably.orderflow.product.exception.DuplicateProductSkuException;
 import io.github.kansasprobably.orderflow.product.exception.ProductNotFoundException;
 import io.github.kansasprobably.orderflow.product.mapper.ProductMapper;
+import io.github.kansasprobably.orderflow.product.specification.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,11 +45,24 @@ public class ProductService {
         return productMapper.toProductResponse(product);
     }
 
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll()
-                .stream()
-                .map(productMapper::toProductResponse)
-                .toList();
+    public Page<ProductResponse> getProducts(
+            ProductStatus status,
+            String name,
+            Pageable pageable
+    ) {
+        Specification<Product> specification =
+                Specification.unrestricted();
+
+        if (status != null) {
+            specification = specification.and(ProductSpecifications.hasStatus(status));
+        }
+
+        if (name != null && !name.isBlank()) {
+            specification = specification.and(ProductSpecifications.nameContains(name));
+        }
+
+        return productRepository.findAll(specification, pageable)
+                .map(productMapper::toProductResponse);
     }
 
     @Transactional
