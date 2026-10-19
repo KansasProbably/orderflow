@@ -58,7 +58,7 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(UUID id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
+        Order order = orderRepository.findByIdWithItems(id).orElseThrow(() -> new OrderNotFoundException(id));
         return orderMapper.toOrderResponse(order);
     }
 

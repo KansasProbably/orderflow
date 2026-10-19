@@ -10,7 +10,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
 
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yml
@@ -24,4 +23,8 @@ spring:
       pageable:
         default-page-size: 20
         max-page-size: 100
+
+
+
+
 
