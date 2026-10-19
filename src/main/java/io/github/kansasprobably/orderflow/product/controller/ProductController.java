@@ -1,16 +1,18 @@
 package io.github.kansasprobably.orderflow.product.controller;
 
 import io.github.kansasprobably.orderflow.product.ProductService;
+import io.github.kansasprobably.orderflow.product.ProductStatus;
 import io.github.kansasprobably.orderflow.product.dto.CreateProductRequest;
 import io.github.kansasprobably.orderflow.product.dto.ProductResponse;
 import io.github.kansasprobably.orderflow.product.dto.UpdateProductStatusRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -41,8 +43,16 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductResponse> getAllProducts() {
-        return productService.getAllProducts();
+    public Page<ProductResponse> getProducts(
+            @RequestParam(required = false)
+            ProductStatus status,
+
+            @RequestParam(required = false)
+            String name,
+
+            Pageable pageable) {
+
+        return productService.getProducts(status, name, pageable);
     }
 
     @PatchMapping("/{id}/status")

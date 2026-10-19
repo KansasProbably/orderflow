@@ -8,8 +8,10 @@ import io.github.kansasprobably.orderflow.product.dto.UpdateProductStatusRequest
 import io.github.kansasprobably.orderflow.product.exception.DuplicateProductSkuException;
 import io.github.kansasprobably.orderflow.product.exception.ProductNotFoundException;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -90,7 +93,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void shouldReturnAllProducts() throws Exception {
+    void shouldGetProductsWithDefaultPagination() throws Exception {
         UUID firstProductId = UUID.randomUUID();
         UUID secondProductId = UUID.randomUUID();
 
@@ -106,16 +109,125 @@ public class ProductControllerTest {
                 OffsetDateTime.parse("2026-01-02T11:00:00Z")
         );
 
-        when(productService.getAllProducts())
-                .thenReturn(List.of(firstProduct,secondProduct));
+        Page<ProductResponse> page =
+                new PageImpl<>(
+                        List.of(firstProduct,secondProduct),
+                        PageRequest.of(0,20),
+                        2
+                );
+
+        when(productService.getProducts(
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
+
 
         mockMvc.perform(get("/api/v1/products"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").value(firstProductId.toString()))
-                .andExpect(jsonPath("$[1].id").value(secondProductId.toString()));
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].id").value(firstProductId.toString()))
+                .andExpect(jsonPath("$.content[1].id").value(secondProductId.toString()))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(20));
 
-        verify(productService).getAllProducts();
+        verify(productService).getProducts(isNull(),isNull(),any(Pageable.class));
+    }
+
+    @Test
+    void shouldAcceptPaginationAndSortingParameters() throws Exception {
+        Page<ProductResponse> page = Page.empty(
+                PageRequest.of(
+                        2,
+                        10,
+                        Sort.by("price").descending()
+                )
+        );
+
+        when(productService.getProducts(
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/api/v1/products")
+                    .param("page","2")
+                    .param("size", "10")
+                    .param("sort", "price,desc"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Pageable> captor =
+                ArgumentCaptor.forClass(Pageable.class);
+
+        verify(productService).getProducts(
+                isNull(),
+                isNull(),
+                captor.capture()
+        );
+
+        Pageable pageable = captor.getValue();
+
+        assertThat(pageable.getPageNumber()).isEqualTo(2);
+        assertThat(pageable.getPageSize()).isEqualTo(10);
+
+        Sort.Order priceOrder =
+                pageable.getSort().getOrderFor("price");
+
+        assertThat(priceOrder).isNotNull();
+        assertThat(priceOrder.getDirection())
+                .isEqualTo(Sort.Direction.DESC);
+    }
+
+    @Test
+    void shouldAcceptProductFilters() throws Exception {
+        Page<ProductResponse> page = Page.empty();
+
+        when(productService.getProducts(
+                eq(ProductStatus.ACTIVE),
+                eq("iphone"),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/api/v1/products")
+                    .param("status", "ACTIVE")
+                    .param("name","iphone"))
+                .andExpect(status().isOk());
+
+        verify(productService).getProducts(
+                eq(ProductStatus.ACTIVE),
+                eq("iphone"),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void shouldLimitPageSize() throws Exception {
+        Page<ProductResponse> page = Page.empty();
+
+        when(productService.getProducts(
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/api/v1/products")
+                        .param("size", "1000"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Pageable> captor =
+                ArgumentCaptor.forClass(Pageable.class);
+
+        verify(productService).getProducts(
+                isNull(),
+                isNull(),
+                captor.capture()
+        );
+
+        Pageable pageable = captor.getValue();
+
+        assertThat(pageable.getPageSize()).isEqualTo(100);
     }
 
     @Test

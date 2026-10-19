@@ -6,8 +6,10 @@ import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,6 +18,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -272,5 +275,142 @@ public class OrderControllerTest {
                         .value("CANCELLED"));
 
         verify(orderService).cancelOrder(orderId);
+    }
+
+    @Test
+    void shouldGetOrdersWithDefaultPagination() throws Exception {
+        UUID firstOrderId = UUID.randomUUID();
+        UUID secondOrderId = UUID.randomUUID();
+        UUID firstCustomerId = UUID.randomUUID();
+        UUID secondCustomerId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        OffsetDateTime updatedAt = OffsetDateTime.parse("2026-01-02T11:00:00Z");
+
+        OrderResponse firstOrder = new OrderResponse(
+                firstOrderId,
+                firstCustomerId,
+                OrderStatus.NEW,
+                List.of(),
+                createdAt,
+                updatedAt
+        );
+
+        OrderResponse secondOrder = new OrderResponse(
+                secondOrderId,
+                secondCustomerId,
+                OrderStatus.NEW,
+                List.of(),
+                createdAt,
+                updatedAt
+        );
+
+        Page<OrderResponse> page =
+                new PageImpl<>(
+                        List.of(firstOrder,secondOrder),
+                        PageRequest.of(0,20),
+                        2
+                );
+
+        when(orderService.getOrders(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+
+        mockMvc.perform(get("/api/v1/orders"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].id").value(firstOrderId.toString()))
+                .andExpect(jsonPath("$.content[1].id").value(secondOrderId.toString()))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(20));
+
+        verify(orderService).getOrders(isNull(),isNull(),isNull(), isNull(), any(Pageable.class));
+    }
+
+    @Test
+    void shouldAcceptPaginationAndSortingParameters() throws Exception {
+        Page<OrderResponse> page = Page.empty(
+                PageRequest.of(
+                        2,
+                        10,
+                        Sort.by("createdAt").ascending()
+                )
+        );
+
+        when(orderService.getOrders(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/api/v1/orders")
+                        .param("page","2")
+                        .param("size", "10")
+                        .param("sort", "createdAt,asc"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Pageable> captor =
+                ArgumentCaptor.forClass(Pageable.class);
+
+        verify(orderService).getOrders(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                captor.capture()
+        );
+
+        Pageable pageable = captor.getValue();
+
+        assertThat(pageable.getPageNumber()).isEqualTo(2);
+        assertThat(pageable.getPageSize()).isEqualTo(10);
+
+        Sort.Order createdAtOrder =
+                pageable.getSort().getOrderFor("createdAt");
+
+        assertThat(createdAtOrder).isNotNull();
+        assertThat(createdAtOrder.getDirection())
+                .isEqualTo(Sort.Direction.ASC);
+    }
+
+    @Test
+    void shouldAcceptOrderFilters() throws Exception {
+        UUID customerId = UUID.randomUUID();
+        OffsetDateTime createdFrom = OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        OffsetDateTime createdTo = OffsetDateTime.parse("2026-01-02T11:00:00Z");
+
+        Page<OrderResponse> page = Page.empty();
+
+
+        when(orderService.getOrders(
+                eq(OrderStatus.NEW),
+                eq(customerId),
+                eq(createdFrom),
+                eq(createdTo),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/api/v1/orders")
+                        .param("status", "NEW")
+                        .param("customerId",customerId.toString())
+                        .param("createdFrom", createdFrom.toString())
+                        .param("createdTo",createdTo.toString()))
+                .andExpect(status().isOk());
+
+        verify(orderService).getOrders(
+                eq(OrderStatus.NEW),
+                eq(customerId),
+                eq(createdFrom),
+                eq(createdTo),
+                any(Pageable.class)
+        );
     }
 }

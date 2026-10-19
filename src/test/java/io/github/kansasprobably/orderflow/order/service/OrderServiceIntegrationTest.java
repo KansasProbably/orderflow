@@ -25,16 +25,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @SpringBootTest
@@ -604,6 +610,328 @@ public class OrderServiceIntegrationTest {
                 .isEqualTo(OrderStatus.NEW);
     }
 
+    @Test
+    void shouldFilterOrdersByStatus() {
+        Customer customer = createCustomer();
+        Order firstOrder = new Order(customer);
+        Order secondOrder = new Order(customer);
+        Order thirdOrder = new Order(customer);
+
+        thirdOrder.confirm();
+
+        orderRepository.saveAll(List.of(firstOrder,secondOrder,thirdOrder));
+
+        Pageable pageable = PageRequest.of(0,20);
+
+        Page<OrderResponse> result = orderService.getOrders(
+                OrderStatus.NEW,
+                null,
+                null,
+                null,
+                pageable
+        );
+
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+
+        assertThat(result.getContent())
+                .extracting(OrderResponse::orderStatus)
+                .containsOnly(OrderStatus.NEW);
+    }
+
+    @Test
+    void shouldFilterOrdersByCustomerId() {
+        Customer firstCustomer = createCustomer();
+        Customer secondCustomer = customerRepository.save(
+                new Customer(
+                        "Kazimir",
+                        "kazimir@mail.ru",
+                        "+79995222011"
+                )
+        );
+
+        Order firstOrder = new Order(firstCustomer);
+        Order secondOrder = new Order(secondCustomer);
+        Order thirdOrder = new Order(firstCustomer);
+
+        orderRepository.saveAll(List.of(firstOrder,secondOrder,thirdOrder));
+
+        Pageable pageable = PageRequest.of(0,20);
+
+        Page<OrderResponse> result = orderService.getOrders(
+                null,
+                firstCustomer.getId(),
+                null,
+                null,
+                pageable
+        );
+
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+
+        assertThat(result.getContent())
+                .extracting(OrderResponse::customerId)
+                .containsOnly(firstCustomer.getId());
+
+    }
+
+    @Test
+    void shouldFilterOrdersByCreatedFrom() {
+        Customer customer = createCustomer();
+        Order firstOrder = new Order(customer);
+        Order secondOrder = new Order(customer);
+        Order thirdOrder = new Order(customer);
+
+        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder));
+
+        OffsetDateTime firstDate =
+                OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        OffsetDateTime secondDate =
+                OffsetDateTime.parse("2026-01-05T10:00:00Z");
+        OffsetDateTime thirdDate =
+                OffsetDateTime.parse("2026-01-10T10:00:00Z");
+
+        setCreatedAt(firstOrder,firstDate);
+        setCreatedAt(secondOrder,secondDate);
+        setCreatedAt(thirdOrder,thirdDate);
+
+        Pageable pageable = PageRequest.of(0,20);
+
+        Page<OrderResponse> result = orderService.getOrders(
+                null,
+                null,
+                secondDate,
+                null,
+                pageable
+        );
+
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+
+        assertThat(result.getContent())
+                .extracting(OrderResponse::id)
+                .containsExactlyInAnyOrder(
+                        secondOrder.getId(),
+                        thirdOrder.getId()
+                );
+
+    }
+
+    @Test
+    void shouldFilterOrdersByCreatedTo() {
+        Customer customer = createCustomer();
+        Order firstOrder = new Order(customer);
+        Order secondOrder = new Order(customer);
+        Order thirdOrder = new Order(customer);
+
+        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder));
+
+        OffsetDateTime firstDate =
+                OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        OffsetDateTime secondDate =
+                OffsetDateTime.parse("2026-01-05T10:00:00Z");
+        OffsetDateTime thirdDate =
+                OffsetDateTime.parse("2026-01-10T10:00:00Z");
+
+        setCreatedAt(firstOrder,firstDate);
+        setCreatedAt(secondOrder,secondDate);
+        setCreatedAt(thirdOrder,thirdDate);
+
+        Pageable pageable = PageRequest.of(0,20);
+
+        Page<OrderResponse> result = orderService.getOrders(
+                null,
+                null,
+                null,
+                secondDate,
+                pageable
+        );
+
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+
+        assertThat(result.getContent())
+                .extracting(OrderResponse::id)
+                .containsExactlyInAnyOrder(
+                        firstOrder.getId(),
+                        secondOrder.getId()
+                );
+    }
+
+    @Test
+    void shouldFilterOrdersByCreatedDateRange() {
+        Customer customer = createCustomer();
+        Order firstOrder = new Order(customer);
+        Order secondOrder = new Order(customer);
+        Order thirdOrder = new Order(customer);
+        Order fourthOrder = new Order(customer);
+
+        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder,fourthOrder));
+
+        OffsetDateTime firstDate =
+                OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        OffsetDateTime secondDate =
+                OffsetDateTime.parse("2026-01-05T10:00:00Z");
+        OffsetDateTime thirdDate =
+                OffsetDateTime.parse("2026-01-10T10:00:00Z");
+        OffsetDateTime fourthDate =
+                OffsetDateTime.parse("2026-01-15T10:00:00Z");
+
+        setCreatedAt(firstOrder,firstDate);
+        setCreatedAt(secondOrder,secondDate);
+        setCreatedAt(thirdOrder,thirdDate);
+        setCreatedAt(fourthOrder,fourthDate);
+
+        Pageable pageable = PageRequest.of(0,20);
+
+        Page<OrderResponse> result = orderService.getOrders(
+                null,
+                null,
+                secondDate,
+                thirdDate,
+                pageable
+        );
+
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+
+        assertThat(result.getContent())
+                .extracting(OrderResponse::id)
+                .containsExactlyInAnyOrder(
+                        secondOrder.getId(),
+                        thirdOrder.getId()
+                );
+
+    }
+
+    @Test
+    void shouldFilterOrdersByStatusAndCustomerId() {
+        Customer firstCustomer = createCustomer();
+        Customer secondCustomer = customerRepository.save(
+                new Customer(
+                        "Kazimir",
+                        "kazimir@mail.ru",
+                        "+79995222011"
+                )
+        );
+
+        Order firstOrder = new Order(firstCustomer);
+        Order secondOrder = new Order(secondCustomer);
+        Order thirdOrder = new Order(firstCustomer);
+
+        thirdOrder.confirm();
+
+        orderRepository.saveAll(List.of(firstOrder,secondOrder,thirdOrder));
+
+        Pageable pageable = PageRequest.of(0,20);
+
+        Page<OrderResponse> result = orderService.getOrders(
+                OrderStatus.NEW,
+                firstCustomer.getId(),
+                null,
+                null,
+                pageable
+        );
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getTotalElements()).isEqualTo(1);
+
+        OrderResponse response = result.getContent().getFirst();
+
+        assertThat(response.orderStatus()).isEqualTo(OrderStatus.NEW);
+        assertThat(response.customerId()).isEqualTo(firstCustomer.getId());
+    }
+
+    @Test
+    void shouldSortByCreatedAtDescending() {
+        Customer customer = createCustomer();
+        Order firstOrder = new Order(customer);
+        Order secondOrder = new Order(customer);
+        Order thirdOrder = new Order(customer);
+
+        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder));
+
+        OffsetDateTime firstDate =
+                OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        OffsetDateTime secondDate =
+                OffsetDateTime.parse("2026-01-05T10:00:00Z");
+        OffsetDateTime thirdDate =
+                OffsetDateTime.parse("2026-01-10T10:00:00Z");
+
+        setCreatedAt(firstOrder,firstDate);
+        setCreatedAt(secondOrder,secondDate);
+        setCreatedAt(thirdOrder,thirdDate);
+
+        Pageable pageable = PageRequest.of(0,20, Sort.by("createdAt").descending());
+
+        Page<OrderResponse> result = orderService.getOrders(
+                null,
+                null,
+                null,
+                null,
+                pageable
+        );
+
+        assertThat(result.getContent())
+                .extracting(OrderResponse::createdAt)
+                .containsExactly(
+                        thirdDate,
+                        secondDate,
+                        firstDate
+                );
+
+
+    }
+
+    @Test
+    void shouldReturnRequestedOrderPage() {
+        Customer customer = createCustomer();
+        Order firstOrder = new Order(customer);
+        Order secondOrder = new Order(customer);
+        Order thirdOrder = new Order(customer);
+        Order fourthOrder = new Order(customer);
+        Order fifthOrder = new Order(customer);
+
+        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder,fourthOrder,fifthOrder));
+
+        OffsetDateTime firstDate =
+                OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        OffsetDateTime secondDate =
+                OffsetDateTime.parse("2026-01-05T10:00:00Z");
+        OffsetDateTime thirdDate =
+                OffsetDateTime.parse("2026-01-10T10:00:00Z");
+        OffsetDateTime fourthDate =
+                OffsetDateTime.parse("2026-01-15T10:00:00Z");
+        OffsetDateTime fifthDate =
+                OffsetDateTime.parse("2026-01-20T10:00:00Z");
+
+        setCreatedAt(firstOrder,firstDate);
+        setCreatedAt(secondOrder,secondDate);
+        setCreatedAt(thirdOrder,thirdDate);
+        setCreatedAt(fourthOrder,fourthDate);
+        setCreatedAt(fifthOrder,fifthDate);
+
+        Pageable pageable = PageRequest.of(1,2, Sort.by("createdAt").ascending());
+
+        Page<OrderResponse> result = orderService.getOrders(
+                null,
+                null,
+                null,
+                null,
+                pageable
+        );
+
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(5);
+        assertThat(result.getTotalPages()).isEqualTo(3);
+        assertThat(result.getNumber()).isEqualTo(1);
+        assertThat(result.getSize()).isEqualTo(2);
+
+        assertThat(result.getContent())
+                .extracting(OrderResponse::createdAt)
+                .containsExactly(thirdDate,fourthDate);
+    }
+
     private Product createProduct(String sku, String name, BigDecimal price) {
         return productRepository.save(
                 new Product(
@@ -641,6 +969,14 @@ public class OrderServiceIntegrationTest {
                         availableQuantity,
                         reservedQuantity
                 )
+        );
+    }
+
+    private void setCreatedAt(Order order, OffsetDateTime createdAt) {
+        jdbcTemplate.update(
+                "UPDATE orders SET created_at = ? WHERE id = ?",
+                Timestamp.from(createdAt.toInstant()),
+                order.getId()
         );
     }
 }
