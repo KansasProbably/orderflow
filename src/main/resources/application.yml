@@ -10,9 +10,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    properties:
-      hibernate:
-        format_sql: true
 
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yml
@@ -27,10 +24,7 @@ spring:
         default-page-size: 20
         max-page-size: 100
 
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+
 
 
 
