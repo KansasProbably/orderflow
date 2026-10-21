@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(
         name = "users",
         uniqueConstraints = @UniqueConstraint(
-                name = "uk_users_email",
+                name = "uk_user_email",
                 columnNames = "email"
         )
 )
