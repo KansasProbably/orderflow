@@ -12,7 +12,7 @@ public record UserCreateRequest(
         @Email
         String email,
 
-        @NotNull
+        @NotBlank
         @Size(min = 8, max = 100)
         String password,
 

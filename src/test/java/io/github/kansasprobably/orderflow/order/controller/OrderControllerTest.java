@@ -5,10 +5,14 @@ import io.github.kansasprobably.orderflow.order.OrderStatus;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
+import io.github.kansasprobably.orderflow.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -25,7 +29,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(OrderController.class)
+@WebMvcTest(
+        value = OrderController.class,
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = JwtAuthenticationFilter.class
+        )
+)
+@AutoConfigureMockMvc(addFilters = false)
 public class OrderControllerTest {
 
     @Autowired

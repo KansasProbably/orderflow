@@ -5,6 +5,11 @@ import io.github.kansasprobably.orderflow.product.ProductStatus;
 import io.github.kansasprobably.orderflow.product.controller.ProductController;
 import io.github.kansasprobably.orderflow.product.dto.CreateProductRequest;
 import io.github.kansasprobably.orderflow.product.dto.ProductResponse;
+import io.github.kansasprobably.orderflow.user.UserRole;
+import io.github.kansasprobably.orderflow.user.UserService;
+import io.github.kansasprobably.orderflow.user.controller.UserController;
+import io.github.kansasprobably.orderflow.user.dto.UserCreateRequest;
+import io.github.kansasprobably.orderflow.user.dto.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -13,16 +18,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -32,7 +33,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ProductController.class)
+@WebMvcTest({
+            ProductController.class,
+            UserController.class
+})
 @Import({
         SecurityConfig.class,
         JwtAuthenticationFilter.class,
@@ -48,6 +52,9 @@ public class SecurityMvcTest {
     private ProductService productService;
 
     @MockitoBean
+    private UserService userService;
+
+    @MockitoBean
     private JwtService jwtService;
 
     @MockitoBean
@@ -58,7 +65,7 @@ public class SecurityMvcTest {
 
     @Test
     void shouldReturn401WhenTokenIsMissing() throws Exception {
-        mockMvc.perform(get(""))
+        mockMvc.perform(get("/api/v1/products"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(401))
@@ -167,5 +174,56 @@ public class SecurityMvcTest {
                         isNull(),
                         any(Pageable.class)
                 );
+    }
+
+    @Test
+    void shouldReturn403WhenManagerCreatesUser() throws Exception {
+        mockMvc.perform(
+                post("/api/v1/users")
+                        .with(user("manager@axemple.com")
+                                .roles("MANAGER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                    {
+                                      "email": "admin2@example.com",
+                                      "password": "password",
+                                      "role": "ADMIN"
+                                    }
+                                    """)
+        )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldAllowAdminToCreatesUser() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        UserResponse response = new UserResponse(
+                id,
+                "admin2@example.com",
+                UserRole.ADMIN,
+                OffsetDateTime.now()
+        );
+
+        when(userService.createUser(any(UserCreateRequest.class)))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        post("/api/v1/users")
+                                .with(user("admin@example.com")
+                                        .roles("ADMIN"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                    {
+                                      "email": "admin2@example.com",
+                                      "password": "password",
+                                      "role": "ADMIN"
+                                    }
+                                    """)
+                )
+                .andExpect(status().isCreated());
+
+        verify(userService)
+                .createUser(any(UserCreateRequest.class));
     }
 }

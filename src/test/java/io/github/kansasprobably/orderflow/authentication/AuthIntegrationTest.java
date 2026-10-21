@@ -19,8 +19,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -43,7 +43,7 @@ public class AuthIntegrationTest {
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
-    void CleanDatabase() {
+    void cleanDatabase() {
         userRepository.deleteAll();
     }
 
@@ -189,6 +189,54 @@ public class AuthIntegrationTest {
                 .andExpect(jsonPath("$.status").value(403))
                 .andExpect(jsonPath("$.message").value("Access denied"))
                 .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    void shouldReturn401WhenUserWasDeletedAfterTokenWasIssued() throws Exception {
+        User user = new User(
+                "manager@example.com",
+                passwordEncoder.encode("password"),
+                UserRole.MANAGER
+        );
+
+        userRepository.saveAndFlush(user);
+
+        MvcResult response = mockMvc.perform(
+                post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "email": "manager@example.com",
+                                    "password": "password"
+                                }
+                                """)
+        )
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseBody = response
+                .getResponse()
+                .getContentAsString();
+
+        String token = JsonPath.read(
+                responseBody,
+                "$.accessToken"
+        );
+
+        userRepository.deleteAll();
+        userRepository.flush();
+
+        mockMvc.perform(
+                get("/api/v1/products")
+                        .header(
+                                HttpHeaders.AUTHORIZATION,
+                                "Bearer " + token
+                        )
+        )
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.message").value("Authentication required"))
+                .andExpect(jsonPath("$.timestamp").exists());
+
     }
 
 }
