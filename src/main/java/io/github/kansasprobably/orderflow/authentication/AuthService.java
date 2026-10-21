@@ -1,0 +1,38 @@
+package io.github.kansasprobably.orderflow.authentication;
+
+import io.github.kansasprobably.orderflow.authentication.dto.LoginRequest;
+import io.github.kansasprobably.orderflow.authentication.dto.LoginResponse;
+import io.github.kansasprobably.orderflow.security.CustomUserDetails;
+import io.github.kansasprobably.orderflow.security.JwtService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+
+import java.util.Locale;
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+
+    public LoginResponse login(LoginRequest request) {
+        String email = request.email()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        Authentication authentication =
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,request.password()));
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        String accessToken = jwtService.generateToken(userDetails);
+
+        return new LoginResponse(accessToken);
+    }
+
+}
