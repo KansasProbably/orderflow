@@ -8,6 +8,7 @@ import io.github.kansasprobably.orderflow.product.exception.DuplicateProductSkuE
 import io.github.kansasprobably.orderflow.product.exception.ProductNotFoundException;
 import io.github.kansasprobably.orderflow.stock.exception.DuplicateStockException;
 import io.github.kansasprobably.orderflow.stock.exception.StockNotFoundException;
+import io.github.kansasprobably.orderflow.user.exception.UserAlreadyExistsException;
 import io.github.kansasprobably.orderflow.warehouse.exception.DuplicateWarehouseCodeException;
 import io.github.kansasprobably.orderflow.warehouse.exception.WarehouseNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -200,6 +201,16 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), exception.getMessage(), Instant.now());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(
+            UserAlreadyExistsException exception
+    ) {
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(), exception.getMessage(), Instant.now());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(errorResponse);
     }
 

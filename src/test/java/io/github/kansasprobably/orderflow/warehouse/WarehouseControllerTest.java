@@ -1,5 +1,6 @@
 package io.github.kansasprobably.orderflow.warehouse;
 
+import io.github.kansasprobably.orderflow.security.JwtAuthenticationFilter;
 import io.github.kansasprobably.orderflow.warehouse.controller.WarehouseController;
 import io.github.kansasprobably.orderflow.warehouse.dto.CreateWarehouseRequest;
 import io.github.kansasprobably.orderflow.warehouse.dto.WarehouseResponse;
@@ -8,6 +9,8 @@ import io.github.kansasprobably.orderflow.warehouse.exception.WarehouseNotFoundE
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,7 +24,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(WarehouseController.class)
+
+@WebMvcTest(
+        value = WarehouseController.class,
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+        classes = JwtAuthenticationFilter.class
+        )
+)
 public class WarehouseControllerTest {
 
     @Autowired

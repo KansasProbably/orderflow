@@ -7,10 +7,13 @@ import io.github.kansasprobably.orderflow.product.dto.ProductResponse;
 import io.github.kansasprobably.orderflow.product.dto.UpdateProductStatusRequest;
 import io.github.kansasprobably.orderflow.product.exception.DuplicateProductSkuException;
 import io.github.kansasprobably.orderflow.product.exception.ProductNotFoundException;
+import io.github.kansasprobably.orderflow.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -27,7 +30,13 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ProductController.class)
+@WebMvcTest(
+        value = ProductController.class,
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = JwtAuthenticationFilter.class
+        )
+)
 public class ProductControllerTest {
 
     @Autowired
