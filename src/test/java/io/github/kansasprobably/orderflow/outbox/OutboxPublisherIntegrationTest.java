@@ -22,9 +22,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest(
-        properties = "app.outbox.publisher.initial-delay=3600000"
-)
+@SpringBootTest
 @Testcontainers
 public class OutboxPublisherIntegrationTest {
 
