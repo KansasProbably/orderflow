@@ -47,6 +47,10 @@ app:
   kafka:
     topics:
       order-confirmed: ${ORDER_CONFIRMED_TOPIC:order-confirmed}
+  outbox:
+    publisher:
+      fixed-delay: ${OUTBOX_PUBLISHER_FIXED_DELAY:5000}
+      initial-delay: ${OUTBOX_PUBLISHER_INITIAL_DELAY:5000}
 
 security:
   jwt:

@@ -13,3 +13,9 @@ security:
   jwt:
     secret: AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=
     expiration: 1h
+
+app:
+  outbox:
+    publisher:
+      fixed-delay: 5000
+      initial-delay: 3600000

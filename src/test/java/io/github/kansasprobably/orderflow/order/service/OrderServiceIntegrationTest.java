@@ -9,7 +9,13 @@ import io.github.kansasprobably.orderflow.order.OrderStatus;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderItemRequest;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
+import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
 import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
+import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
+import io.github.kansasprobably.orderflow.outbox.OutboxEvent;
+import io.github.kansasprobably.orderflow.outbox.OutboxEventRepository;
+import io.github.kansasprobably.orderflow.outbox.OutboxEventStatus;
+import io.github.kansasprobably.orderflow.outbox.OutboxEventType;
 import io.github.kansasprobably.orderflow.product.Product;
 import io.github.kansasprobably.orderflow.product.ProductRepository;
 import io.github.kansasprobably.orderflow.stock.Stock;
@@ -30,18 +36,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 
 @SpringBootTest
 @Testcontainers
@@ -76,6 +87,15 @@ public class OrderServiceIntegrationTest {
     @Autowired
     private EntityManagerFactory entityManagerFactory;
 
+    @Autowired
+    private OutboxEventRepository outboxEventRepository;
+
+    @Autowired
+    private JsonMapper jsonMapper;
+
+    @MockitoSpyBean
+    private OrderMapper orderMapper;
+
     @BeforeEach
     void cleanDatabase() {
         jdbcTemplate.execute("""
@@ -85,9 +105,95 @@ public class OrderServiceIntegrationTest {
                     stocks,
                     warehouses,
                     products,
-                    customers
+                    customers,
+                    outbox_events
                 CASCADE
                 """);
+    }
+
+    @Test
+    void shouldRollbackOrderAndOutboxWhenTransactionFails() {
+        Customer customer = createCustomer();
+
+        Order order = new Order(customer);
+        orderRepository.saveAndFlush(order);
+
+        UUID orderId = order.getId();
+
+        doThrow(new RuntimeException("Test transaction failure"))
+                .when(orderMapper)
+                .toOrderResponse(any(Order.class));
+
+        assertThatThrownBy(() -> orderService.confirmOrder(orderId))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Test transaction failure");
+
+        Order orderAfterRollback = orderRepository.findById(orderId)
+                .orElseThrow();
+
+        assertThat(orderAfterRollback.getStatus())
+                .isEqualTo(OrderStatus.NEW);
+
+        assertThat(outboxEventRepository.count())
+                .isZero();
+    }
+
+    @Test
+    void shouldConfirmOrderAndCreateOutboxEvent() {
+        Customer customer = createCustomer();
+
+        Order order = new Order(customer);
+        orderRepository.saveAndFlush(order);
+
+        orderService.confirmOrder(order.getId());
+
+        Order confirmedOrder = orderRepository.findById(order.getId())
+                .orElseThrow();
+
+        assertThat(confirmedOrder.getStatus())
+                .isEqualTo(OrderStatus.CONFIRMED);
+
+        List<OutboxEvent> outboxEvents = outboxEventRepository.findAll();
+
+        assertThat(outboxEvents)
+                .hasSize(1);
+
+        OutboxEvent outboxEvent = outboxEvents.getFirst();
+
+        assertThat(outboxEvent.getId())
+                .isNotNull();
+        assertThat(outboxEvent.getAggregateType())
+                .isEqualTo("ORDER");
+        assertThat(outboxEvent.getAggregateId())
+                .isEqualTo(order.getId());
+        assertThat(outboxEvent.getEventType())
+                .isEqualTo(OutboxEventType.ORDER_CONFIRMED);
+        assertThat(outboxEvent.getPayload())
+                .isNotNull();
+        assertThat(outboxEvent.getCreatedAt())
+                .isNotNull();
+        assertThat(outboxEvent.getPublishedAt())
+                .isNull();
+        assertThat(outboxEvent.getStatus())
+                .isEqualTo(OutboxEventStatus.NEW);
+
+        OrderConfirmedEvent orderConfirmedEvent = jsonMapper.readValue(
+                outboxEvent.getPayload(),
+                OrderConfirmedEvent.class
+        );
+
+        assertThat(orderConfirmedEvent.eventId())
+                .isEqualTo(outboxEvent.getId());
+        assertThat(orderConfirmedEvent.orderId())
+                .isEqualTo(order.getId());
+        assertThat(orderConfirmedEvent.customerId())
+                .isEqualTo(customer.getId());
+        assertThat(orderConfirmedEvent.confirmedAt())
+                .isNotNull();
+
+
+
+
     }
 
     @Test

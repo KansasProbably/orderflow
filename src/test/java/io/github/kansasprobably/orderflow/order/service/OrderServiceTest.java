@@ -8,6 +8,7 @@ import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
 import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
 import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
+import io.github.kansasprobably.orderflow.outbox.OutboxService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,11 +31,12 @@ public class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
-    @Mock
-    private OrderEventProducer orderEventProducer;
 
     @Mock
     private OrderMapper orderMapper;
+
+    @Mock
+    private OutboxService outboxService;
 
     @InjectMocks
     private OrderService orderService;
@@ -65,8 +67,8 @@ public class OrderServiceTest {
         ArgumentCaptor<OrderConfirmedEvent> captor =
                 ArgumentCaptor.forClass(OrderConfirmedEvent.class);
 
-        verify(orderEventProducer)
-                .publishOrderConfirmed(captor.capture());
+        verify(outboxService)
+                .saveOrderConfirmedEvent(captor.capture());
 
         OrderConfirmedEvent event = captor.getValue();
 
@@ -104,8 +106,8 @@ public class OrderServiceTest {
                 .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
 
-        verify(orderEventProducer,never())
-                .publishOrderConfirmed(any());
+        verify(outboxService,never())
+                .saveOrderConfirmedEvent(any());
 
     }
 }
