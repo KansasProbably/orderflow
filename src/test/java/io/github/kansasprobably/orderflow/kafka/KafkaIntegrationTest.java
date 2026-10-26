@@ -33,7 +33,7 @@ public class KafkaIntegrationTest {
     @Container
     @ServiceConnection
     static final KafkaContainer kafkaContainer =
-            new KafkaContainer("apache/kafka-native:3.8.0");
+            new KafkaContainer("apache/kafka-native:4.3.1");
 
     @Autowired
     private OrderEventProducer orderEventProducer;

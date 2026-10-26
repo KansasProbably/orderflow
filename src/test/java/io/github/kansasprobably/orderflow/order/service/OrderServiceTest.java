@@ -4,12 +4,10 @@ import io.github.kansasprobably.orderflow.customer.Customer;
 import io.github.kansasprobably.orderflow.order.Order;
 import io.github.kansasprobably.orderflow.order.OrderRepository;
 import io.github.kansasprobably.orderflow.order.OrderService;
-import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
 import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
 import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
-import io.github.kansasprobably.orderflow.stock.StockRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -34,6 +32,9 @@ public class OrderServiceTest {
 
     @Mock
     private OrderEventProducer orderEventProducer;
+
+    @Mock
+    private OrderMapper orderMapper;
 
     @InjectMocks
     private OrderService orderService;

@@ -43,9 +43,10 @@ spring:
         "[spring.json.trusted.packages]": io.github.kansasprobably.orderflow.order.event
         "[spring.json.use.type.headers]": false
 
-
-
-
+app:
+  kafka:
+    topics:
+      order-confirmed: ${ORDER_CONFIRMED_TOPIC:order-confirmed}
 
 security:
   jwt:

@@ -4,7 +4,6 @@ import io.github.kansasprobably.orderflow.order.event.OrderConfirmedConsumer;
 import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 

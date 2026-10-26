@@ -1,5 +1,6 @@
 package io.github.kansasprobably.orderflow.order.event;
 
+import io.github.kansasprobably.orderflow.kafka.KafkaTopicProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -8,13 +9,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderEventProducer {
 
-    private final static String ORDER_CONFIRMED_TOPIC = "order-confirmed";
+    private final KafkaTopicProperties kafkaTopicProperties;
 
     private final KafkaTemplate<String, OrderConfirmedEvent> kafkaTemplate;
 
     public void publishOrderConfirmed(OrderConfirmedEvent event) {
         kafkaTemplate.send(
-                ORDER_CONFIRMED_TOPIC,
+                kafkaTopicProperties.orderConfirmed(),
                 event.orderId().toString(),
                 event
         );

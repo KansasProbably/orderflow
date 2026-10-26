@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class OrderConfirmedConsumer {
 
-    @KafkaListener(topics = "order-confirmed")
+    @KafkaListener(topics = "${app.kafka.topics.order-confirmed}")
     public void consume(OrderConfirmedEvent orderConfirmedEvent) {
         log.info(
-                "Order confirmed event received: eventId={}, orderId{}, cutomerId{}, confirmedAt{}",
+                "Order confirmed event received: eventId={}, orderId={}, customerId={}, confirmedAt={}",
                 orderConfirmedEvent.eventId(),
                 orderConfirmedEvent.orderId(),
                 orderConfirmedEvent.customerId(),
