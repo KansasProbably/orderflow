@@ -6,6 +6,8 @@ import io.github.kansasprobably.orderflow.customer.exception.CustomerNotFoundExc
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderItemRequest;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
+import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
+import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
 import io.github.kansasprobably.orderflow.order.specification.OrderSpecifications;
@@ -30,6 +32,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final StockService stockService;
     private final OrderMapper orderMapper;
+    private final OrderEventProducer orderEventProducer;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest createOrderRequest) {
@@ -68,6 +71,17 @@ public class OrderService {
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
         order.confirm();
+
+        OffsetDateTime confirmedAt = OffsetDateTime.now();
+
+        OrderConfirmedEvent orderConfirmedEvent = new OrderConfirmedEvent(
+                UUID.randomUUID(),
+                order.getId(),
+                order.getCustomer().getId(),
+                confirmedAt
+        );
+
+        orderEventProducer.publishOrderConfirmed(orderConfirmedEvent);
 
         return orderMapper.toOrderResponse(order);
     }
