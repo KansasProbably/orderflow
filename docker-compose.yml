@@ -1,4 +1,11 @@
 services:
+
+  kafka:
+    image: apache/kafka:4.3.1
+    container_name: orderflow-kafka
+    ports:
+      - "9092:9092"
+
   postgres:
     image: postgres:16
     container_name: orderflow-postgres
