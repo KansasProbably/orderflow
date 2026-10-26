@@ -11,6 +11,7 @@ import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
 import io.github.kansasprobably.orderflow.order.specification.OrderSpecifications;
+import io.github.kansasprobably.orderflow.outbox.OutboxService;
 import io.github.kansasprobably.orderflow.stock.Stock;
 import io.github.kansasprobably.orderflow.stock.StockService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final StockService stockService;
     private final OrderMapper orderMapper;
-    private final OrderEventProducer orderEventProducer;
+   private final OutboxService outboxService;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest createOrderRequest) {
@@ -81,7 +82,7 @@ public class OrderService {
                 confirmedAt
         );
 
-        orderEventProducer.publishOrderConfirmed(orderConfirmedEvent);
+        outboxService.saveOrderConfirmedEvent(orderConfirmedEvent);
 
         return orderMapper.toOrderResponse(order);
     }
