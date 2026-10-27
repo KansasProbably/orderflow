@@ -38,6 +38,7 @@ public class RedisCacheConfig {
                         );
 
         return builder -> builder
+                .transactionAware()
                 .cacheWriter(redisCacheWriter)
                 .withCacheConfiguration(
                 PRODUCTS_CACHE,
