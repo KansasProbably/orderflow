@@ -18,5 +18,11 @@ services:
     volumes:
       - orderflow-postgres-data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7.4-alpine
+    container_name: orderflow-redis
+    ports:
+      - "6379:6379"
+
 volumes:
   orderflow-postgres-data:

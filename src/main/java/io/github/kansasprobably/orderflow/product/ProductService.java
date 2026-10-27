@@ -1,5 +1,6 @@
 package io.github.kansasprobably.orderflow.product;
 
+import io.github.kansasprobably.orderflow.config.cache.RedisCacheConfig;
 import io.github.kansasprobably.orderflow.product.dto.CreateProductRequest;
 import io.github.kansasprobably.orderflow.product.dto.ProductResponse;
 import io.github.kansasprobably.orderflow.product.dto.UpdateProductStatusRequest;
@@ -8,6 +9,8 @@ import io.github.kansasprobably.orderflow.product.exception.ProductNotFoundExcep
 import io.github.kansasprobably.orderflow.product.mapper.ProductMapper;
 import io.github.kansasprobably.orderflow.product.specification.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -37,6 +40,10 @@ public class ProductService {
         return productMapper.toProductResponse(savedProduct);
     }
 
+    @Cacheable(
+            cacheNames = RedisCacheConfig.PRODUCTS_CACHE,
+            key = "#id"
+    )
     public ProductResponse getProductById(UUID id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
@@ -65,6 +72,10 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(
+            cacheNames = RedisCacheConfig.PRODUCTS_CACHE,
+            key = "#id"
+    )
     public ProductResponse updateStatus(UUID id, UpdateProductStatusRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
