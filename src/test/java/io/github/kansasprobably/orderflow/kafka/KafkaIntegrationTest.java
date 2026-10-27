@@ -21,7 +21,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.kafka.admin.auto-create=true",
+        "spring.kafka.listener.auto-startup=true"
+})
 @Testcontainers
 public class KafkaIntegrationTest {
 

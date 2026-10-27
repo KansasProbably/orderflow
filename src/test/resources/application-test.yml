@@ -4,6 +4,13 @@ spring:
       hibernate:
         format_sql: true
 
+
+  kafka:
+    admin:
+        auto-create: false
+    listener:
+        auto-startup: false
+
   cache:
     type: none
 
