@@ -57,8 +57,8 @@ app:
 
   outbox:
     publisher:
-      fixed-delay: ${OUTBOX_PUBLISHER_FIXED_DELAY:5000}
-      initial-delay: ${OUTBOX_PUBLISHER_INITIAL_DELAY:5000}
+      fixed-delay: ${OUTBOX_PUBLISHER_FIXED_DELAY:60000}
+      initial-delay: ${OUTBOX_PUBLISHER_INITIAL_DELAY:60000}
 
   cache:
     products:
@@ -69,6 +69,16 @@ security:
     secret: ${JWT_SECRET}
     expiration: ${JWT_EXPIRATION:1h}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+  endpoint:
+    health:
+      show-components: always
+      show-details: always
 
 
 

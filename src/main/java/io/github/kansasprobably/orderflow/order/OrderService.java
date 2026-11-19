@@ -10,6 +10,7 @@ import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
 import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
+import io.github.kansasprobably.orderflow.order.metrics.OrderMetrics;
 import io.github.kansasprobably.orderflow.order.specification.OrderSpecifications;
 import io.github.kansasprobably.orderflow.outbox.OutboxService;
 import io.github.kansasprobably.orderflow.stock.Stock;
@@ -33,7 +34,8 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final StockService stockService;
     private final OrderMapper orderMapper;
-   private final OutboxService outboxService;
+    private final OutboxService outboxService;
+    private final OrderMetrics orderMetrics;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest createOrderRequest) {
@@ -58,6 +60,9 @@ public class OrderService {
         }
 
         Order savedOrder = orderRepository.save(order);
+
+        orderMetrics.incrementCreated();
+
         return orderMapper.toOrderResponse(savedOrder);
     }
 
@@ -83,6 +88,8 @@ public class OrderService {
         );
 
         outboxService.saveOrderConfirmedEvent(orderConfirmedEvent);
+
+        orderMetrics.incrementConfirmed();
 
         return orderMapper.toOrderResponse(order);
     }

@@ -2,6 +2,7 @@ package io.github.kansasprobably.orderflow.security;
 
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -70,6 +71,12 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/users")
                         .hasRole("ADMIN")
+
+                        .requestMatchers(EndpointRequest.to("health","prometheus"))
+                        .permitAll()
+
+                        .requestMatchers(EndpointRequest.to("info"))
+                        .authenticated()
 
                         .anyRequest().authenticated()
                 )

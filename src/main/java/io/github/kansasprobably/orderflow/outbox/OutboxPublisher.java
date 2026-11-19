@@ -2,6 +2,7 @@ package io.github.kansasprobably.orderflow.outbox;
 
 import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
 import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
+import io.github.kansasprobably.orderflow.outbox.metrics.OutboxMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +25,8 @@ public class OutboxPublisher {
     private final OrderEventProducer orderEventProducer;
 
     private final JsonMapper jsonMapper;
+
+    private final OutboxMetrics outboxMetrics;
 
     @Scheduled(
             fixedDelayString = "${app.outbox.publisher.fixed-delay}",
@@ -58,11 +61,16 @@ public class OutboxPublisher {
                             );
 
                     outboxEvent.markAsPublished();
+
+                    outboxMetrics.incrementPublished();
+
                 }
             }
 
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
+
+            outboxMetrics.incrementPublishFailed();
 
             log.warn(
                     "Outbox publishing interrupted: eventId={}",
@@ -70,6 +78,7 @@ public class OutboxPublisher {
             );
 
         } catch (Exception exception) {
+            outboxMetrics.incrementPublishFailed();
             log.error(
                     "Failed to publish outbox event: eventId={}, eventType={}",
                     outboxEvent.getId(),

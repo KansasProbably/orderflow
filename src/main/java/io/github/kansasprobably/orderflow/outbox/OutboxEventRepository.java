@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> {
 
     List<OutboxEvent> findAllByStatusOrderByCreatedAtAsc(OutboxEventStatus status);
+
+    long countByStatus(OutboxEventStatus status);
 }
