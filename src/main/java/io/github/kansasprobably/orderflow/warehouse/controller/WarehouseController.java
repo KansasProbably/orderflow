@@ -22,7 +22,7 @@ public class WarehouseController {
     @PostMapping
     public ResponseEntity<WarehouseResponse> createWarehouse(
             @Valid @RequestBody CreateWarehouseRequest request
-    ){
+    ) {
         WarehouseResponse response = warehouseService.createWarehouse(request);
         URI location = URI.create(
                 "/api/v1/warehouses/" + response.id()

@@ -33,7 +33,7 @@ public class UserServiceTest {
 
     @Test
     void shouldCreateUserWithEncodedPassword() {
-        UserCreateRequest request =  new UserCreateRequest(
+        UserCreateRequest request = new UserCreateRequest(
                 "admin@example.com",
                 "password",
                 UserRole.ADMIN
@@ -69,7 +69,7 @@ public class UserServiceTest {
 
     @Test
     void shouldNormalizeEmailBeforeSaving() {
-        UserCreateRequest request =  new UserCreateRequest(
+        UserCreateRequest request = new UserCreateRequest(
                 " adMIn@exAMPle.com ",
                 "password",
                 UserRole.ADMIN
@@ -102,7 +102,7 @@ public class UserServiceTest {
 
     @Test
     void shouldThrowThenEmailAlreadyExists() {
-        UserCreateRequest request =  new UserCreateRequest(
+        UserCreateRequest request = new UserCreateRequest(
                 "admin@example.com",
                 "password",
                 UserRole.ADMIN

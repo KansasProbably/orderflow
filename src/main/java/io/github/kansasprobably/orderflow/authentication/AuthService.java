@@ -25,7 +25,7 @@ public class AuthService {
                 .toLowerCase(Locale.ROOT);
 
         Authentication authentication =
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,request.password()));
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, request.password()));
 
         CustomUserDetails userDetails =
                 (CustomUserDetails) authentication.getPrincipal();

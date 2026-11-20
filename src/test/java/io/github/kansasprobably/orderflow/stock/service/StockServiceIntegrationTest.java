@@ -36,7 +36,7 @@ public class StockServiceIntegrationTest {
             new PostgreSQLContainer("postgres:16");
 
     @Autowired
-    private  JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private StockService stockService;
@@ -166,8 +166,8 @@ public class StockServiceIntegrationTest {
     private Warehouse createWarehouse() {
         return warehouseRepository.save(
                 new Warehouse(
-                "MSK-01",
-                "Moscow warehouse"
+                        "MSK-01",
+                        "Moscow warehouse"
                 )
         );
     }

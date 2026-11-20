@@ -41,8 +41,8 @@ public class RedisCacheConfig {
                 .transactionAware()
                 .cacheWriter(redisCacheWriter)
                 .withCacheConfiguration(
-                PRODUCTS_CACHE,
-                productCacheConfiguration
-        );
+                        PRODUCTS_CACHE,
+                        productCacheConfiguration
+                );
     }
 }

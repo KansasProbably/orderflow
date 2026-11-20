@@ -7,6 +7,6 @@ import java.util.UUID;
 
 public interface ProductRepository
         extends JpaRepository<Product, UUID>,
-                JpaSpecificationExecutor<Product> {
+        JpaSpecificationExecutor<Product> {
     boolean existsBySku(String sku);
 }

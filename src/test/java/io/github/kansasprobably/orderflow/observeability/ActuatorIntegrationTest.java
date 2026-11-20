@@ -6,7 +6,6 @@ import io.github.kansasprobably.orderflow.order.OrderRepository;
 import io.github.kansasprobably.orderflow.order.OrderService;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderItemRequest;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
-import io.github.kansasprobably.orderflow.order.metrics.OrderMetrics;
 import io.github.kansasprobably.orderflow.product.Product;
 import io.github.kansasprobably.orderflow.product.ProductRepository;
 import io.github.kansasprobably.orderflow.stock.Stock;
@@ -27,13 +26,11 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -98,7 +95,7 @@ public class ActuatorIntegrationTest {
         Customer customer = createCustomer();
         Product product = createProduct();
         Warehouse warehouse = createWarehouse();
-        Stock stock = createStock(product,warehouse,100,0);
+        Stock stock = createStock(product, warehouse, 100, 0);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 customer.getId(),
@@ -119,7 +116,7 @@ public class ActuatorIntegrationTest {
                 .getResponse()
                 .getContentAsString();
 
-        double after = getMetricValue(afterResponse,"orders_creation_total");
+        double after = getMetricValue(afterResponse, "orders_creation_total");
 
         assertThat(after).isEqualTo(before + 1);
     }

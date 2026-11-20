@@ -192,8 +192,6 @@ public class OrderServiceIntegrationTest {
                 .isNotNull();
 
 
-
-
     }
 
     @Test
@@ -209,7 +207,7 @@ public class OrderServiceIntegrationTest {
 
         Warehouse warehouse = createWarehouse();
 
-        createStock(product,warehouse,10,0);
+        createStock(product, warehouse, 10, 0);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 customer.getId(),
@@ -245,7 +243,7 @@ public class OrderServiceIntegrationTest {
 
         Warehouse warehouse = createWarehouse();
 
-        createStock(product,warehouse,10,0);
+        createStock(product, warehouse, 10, 0);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 customer.getId(),
@@ -261,12 +259,12 @@ public class OrderServiceIntegrationTest {
         OrderResponse response = orderService.createOrder(request);
 
 
-        Map<String,Object> savedItem = jdbcTemplate.queryForMap(
+        Map<String, Object> savedItem = jdbcTemplate.queryForMap(
                 """
-                SELECT product_id, warehouse_id, quantity
-                FROM order_items
-                WHERE order_id = ?
-                """,
+                        SELECT product_id, warehouse_id, quantity
+                        FROM order_items
+                        WHERE order_id = ?
+                        """,
                 response.id()
         );
 
@@ -291,7 +289,7 @@ public class OrderServiceIntegrationTest {
 
         Warehouse warehouse = createWarehouse();
 
-        createStock(product,warehouse,10,0);
+        createStock(product, warehouse, 10, 0);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 customer.getId(),
@@ -307,9 +305,9 @@ public class OrderServiceIntegrationTest {
         orderService.createOrder(request);
 
         Stock updatedStock = stockRepository.findByProductIdAndWarehouseId(
-                product.getId(),
-                warehouse.getId()
-        )
+                        product.getId(),
+                        warehouse.getId()
+                )
                 .orElseThrow();
 
         assertThat(updatedStock.getAvailableQuantity()).isEqualTo(8);
@@ -332,9 +330,9 @@ public class OrderServiceIntegrationTest {
 
         Warehouse warehouse = createWarehouse();
 
-        Stock firstStock = createStock(firstProduct,warehouse,10,0);
+        Stock firstStock = createStock(firstProduct, warehouse, 10, 0);
 
-        Stock secondStock = createStock(secondProduct,warehouse,1,0);
+        Stock secondStock = createStock(secondProduct, warehouse, 1, 0);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 customer.getId(),
@@ -386,7 +384,7 @@ public class OrderServiceIntegrationTest {
 
         Warehouse warehouse = createWarehouse();
 
-        Stock firstStock = createStock(firstProduct,warehouse,10,0);
+        Stock firstStock = createStock(firstProduct, warehouse, 10, 0);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 customer.getId(),
@@ -428,7 +426,7 @@ public class OrderServiceIntegrationTest {
 
         Warehouse warehouse = createWarehouse();
 
-        createStock(product,warehouse,10,0);
+        createStock(product, warehouse, 10, 0);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 customer.getId(),
@@ -445,30 +443,30 @@ public class OrderServiceIntegrationTest {
 
         jdbcTemplate.update(
                 """
-                UPDATE products
-                SET price = ?
-                WHERE id = ?
-                """,
+                        UPDATE products
+                        SET price = ?
+                        WHERE id = ?
+                        """,
                 new BigDecimal("67000.00"),
                 product.getId()
         );
 
         BigDecimal orderItemPrice = jdbcTemplate.queryForObject(
                 """
-                SELECT price
-                FROM order_items
-                WHERE order_id = ?
-                """,
+                        SELECT price
+                        FROM order_items
+                        WHERE order_id = ?
+                        """,
                 BigDecimal.class,
                 response.id()
         );
 
         BigDecimal currentProductPrice = jdbcTemplate.queryForObject(
                 """
-                SELECT price
-                FROM products
-                WHERE id = ?        
-                """,
+                        SELECT price
+                        FROM products
+                        WHERE id = ?        
+                        """,
                 BigDecimal.class,
                 product.getId()
         );
@@ -486,7 +484,7 @@ public class OrderServiceIntegrationTest {
 
         Warehouse warehouse = createWarehouse();
 
-        Stock stock = createStock(product,warehouse,10,0);
+        Stock stock = createStock(product, warehouse, 10, 0);
 
         EntityManager firstEntityManager = entityManagerFactory.createEntityManager();
         EntityManager secondEntityManager = entityManagerFactory.createEntityManager();
@@ -550,7 +548,7 @@ public class OrderServiceIntegrationTest {
 
         Warehouse warehouse = createWarehouse();
 
-        Stock stock = createStock(product,warehouse,10,0);
+        Stock stock = createStock(product, warehouse, 10, 0);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 customer.getId(),
@@ -655,8 +653,8 @@ public class OrderServiceIntegrationTest {
 
         Warehouse warehouse = createWarehouse();
 
-        Stock firstStock = createStock(firstProduct,warehouse,10,0);
-        Stock secondStock = createStock(secondProduct,warehouse,10,0);
+        Stock firstStock = createStock(firstProduct, warehouse, 10, 0);
+        Stock secondStock = createStock(secondProduct, warehouse, 10, 0);
 
         CreateOrderRequest request = new CreateOrderRequest(
                 customer.getId(),
@@ -678,16 +676,16 @@ public class OrderServiceIntegrationTest {
 
         jdbcTemplate.update(
                 """
-                UPDATE stocks
-                SET reserved_quantity = 0
-                WHERE id = ?
-                """,
+                        UPDATE stocks
+                        SET reserved_quantity = 0
+                        WHERE id = ?
+                        """,
                 secondStock.getId()
         );
 
         assertThatThrownBy(
                 () -> orderService.cancelOrder(createdOrder.id()))
-                    .isInstanceOf(InsufficientReservedStockException.class);
+                .isInstanceOf(InsufficientReservedStockException.class);
 
         Stock firstStockAfterRollback = stockRepository
                 .findById(firstStock.getId())
@@ -725,9 +723,9 @@ public class OrderServiceIntegrationTest {
 
         thirdOrder.confirm();
 
-        orderRepository.saveAll(List.of(firstOrder,secondOrder,thirdOrder));
+        orderRepository.saveAll(List.of(firstOrder, secondOrder, thirdOrder));
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<OrderResponse> result = orderService.getOrders(
                 OrderStatus.NEW,
@@ -760,9 +758,9 @@ public class OrderServiceIntegrationTest {
         Order secondOrder = new Order(secondCustomer);
         Order thirdOrder = new Order(firstCustomer);
 
-        orderRepository.saveAll(List.of(firstOrder,secondOrder,thirdOrder));
+        orderRepository.saveAll(List.of(firstOrder, secondOrder, thirdOrder));
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<OrderResponse> result = orderService.getOrders(
                 null,
@@ -788,7 +786,7 @@ public class OrderServiceIntegrationTest {
         Order secondOrder = new Order(customer);
         Order thirdOrder = new Order(customer);
 
-        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder));
+        orderRepository.saveAllAndFlush(List.of(firstOrder, secondOrder, thirdOrder));
 
         OffsetDateTime firstDate =
                 OffsetDateTime.parse("2026-01-01T10:00:00Z");
@@ -797,11 +795,11 @@ public class OrderServiceIntegrationTest {
         OffsetDateTime thirdDate =
                 OffsetDateTime.parse("2026-01-10T10:00:00Z");
 
-        setCreatedAt(firstOrder,firstDate);
-        setCreatedAt(secondOrder,secondDate);
-        setCreatedAt(thirdOrder,thirdDate);
+        setCreatedAt(firstOrder, firstDate);
+        setCreatedAt(secondOrder, secondDate);
+        setCreatedAt(thirdOrder, thirdDate);
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<OrderResponse> result = orderService.getOrders(
                 null,
@@ -830,7 +828,7 @@ public class OrderServiceIntegrationTest {
         Order secondOrder = new Order(customer);
         Order thirdOrder = new Order(customer);
 
-        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder));
+        orderRepository.saveAllAndFlush(List.of(firstOrder, secondOrder, thirdOrder));
 
         OffsetDateTime firstDate =
                 OffsetDateTime.parse("2026-01-01T10:00:00Z");
@@ -839,11 +837,11 @@ public class OrderServiceIntegrationTest {
         OffsetDateTime thirdDate =
                 OffsetDateTime.parse("2026-01-10T10:00:00Z");
 
-        setCreatedAt(firstOrder,firstDate);
-        setCreatedAt(secondOrder,secondDate);
-        setCreatedAt(thirdOrder,thirdDate);
+        setCreatedAt(firstOrder, firstDate);
+        setCreatedAt(secondOrder, secondDate);
+        setCreatedAt(thirdOrder, thirdDate);
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<OrderResponse> result = orderService.getOrders(
                 null,
@@ -872,7 +870,7 @@ public class OrderServiceIntegrationTest {
         Order thirdOrder = new Order(customer);
         Order fourthOrder = new Order(customer);
 
-        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder,fourthOrder));
+        orderRepository.saveAllAndFlush(List.of(firstOrder, secondOrder, thirdOrder, fourthOrder));
 
         OffsetDateTime firstDate =
                 OffsetDateTime.parse("2026-01-01T10:00:00Z");
@@ -883,12 +881,12 @@ public class OrderServiceIntegrationTest {
         OffsetDateTime fourthDate =
                 OffsetDateTime.parse("2026-01-15T10:00:00Z");
 
-        setCreatedAt(firstOrder,firstDate);
-        setCreatedAt(secondOrder,secondDate);
-        setCreatedAt(thirdOrder,thirdDate);
-        setCreatedAt(fourthOrder,fourthDate);
+        setCreatedAt(firstOrder, firstDate);
+        setCreatedAt(secondOrder, secondDate);
+        setCreatedAt(thirdOrder, thirdDate);
+        setCreatedAt(fourthOrder, fourthDate);
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<OrderResponse> result = orderService.getOrders(
                 null,
@@ -927,9 +925,9 @@ public class OrderServiceIntegrationTest {
 
         thirdOrder.confirm();
 
-        orderRepository.saveAll(List.of(firstOrder,secondOrder,thirdOrder));
+        orderRepository.saveAll(List.of(firstOrder, secondOrder, thirdOrder));
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<OrderResponse> result = orderService.getOrders(
                 OrderStatus.NEW,
@@ -955,7 +953,7 @@ public class OrderServiceIntegrationTest {
         Order secondOrder = new Order(customer);
         Order thirdOrder = new Order(customer);
 
-        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder));
+        orderRepository.saveAllAndFlush(List.of(firstOrder, secondOrder, thirdOrder));
 
         OffsetDateTime firstDate =
                 OffsetDateTime.parse("2026-01-01T10:00:00Z");
@@ -964,11 +962,11 @@ public class OrderServiceIntegrationTest {
         OffsetDateTime thirdDate =
                 OffsetDateTime.parse("2026-01-10T10:00:00Z");
 
-        setCreatedAt(firstOrder,firstDate);
-        setCreatedAt(secondOrder,secondDate);
-        setCreatedAt(thirdOrder,thirdDate);
+        setCreatedAt(firstOrder, firstDate);
+        setCreatedAt(secondOrder, secondDate);
+        setCreatedAt(thirdOrder, thirdDate);
 
-        Pageable pageable = PageRequest.of(0,20, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(0, 20, Sort.by("createdAt").descending());
 
         Page<OrderResponse> result = orderService.getOrders(
                 null,
@@ -998,7 +996,7 @@ public class OrderServiceIntegrationTest {
         Order fourthOrder = new Order(customer);
         Order fifthOrder = new Order(customer);
 
-        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder,fourthOrder,fifthOrder));
+        orderRepository.saveAllAndFlush(List.of(firstOrder, secondOrder, thirdOrder, fourthOrder, fifthOrder));
 
         OffsetDateTime firstDate =
                 OffsetDateTime.parse("2026-01-01T10:00:00Z");
@@ -1011,13 +1009,13 @@ public class OrderServiceIntegrationTest {
         OffsetDateTime fifthDate =
                 OffsetDateTime.parse("2026-01-20T10:00:00Z");
 
-        setCreatedAt(firstOrder,firstDate);
-        setCreatedAt(secondOrder,secondDate);
-        setCreatedAt(thirdOrder,thirdDate);
-        setCreatedAt(fourthOrder,fourthDate);
-        setCreatedAt(fifthOrder,fifthDate);
+        setCreatedAt(firstOrder, firstDate);
+        setCreatedAt(secondOrder, secondDate);
+        setCreatedAt(thirdOrder, thirdDate);
+        setCreatedAt(fourthOrder, fourthDate);
+        setCreatedAt(fifthOrder, fifthDate);
 
-        Pageable pageable = PageRequest.of(1,2, Sort.by("createdAt").ascending());
+        Pageable pageable = PageRequest.of(1, 2, Sort.by("createdAt").ascending());
 
         Page<OrderResponse> result = orderService.getOrders(
                 null,
@@ -1035,7 +1033,7 @@ public class OrderServiceIntegrationTest {
 
         assertThat(result.getContent())
                 .extracting(OrderResponse::createdAt)
-                .containsExactly(thirdDate,fourthDate);
+                .containsExactly(thirdDate, fourthDate);
     }
 
     private Product createProduct(String sku, String name, BigDecimal price) {

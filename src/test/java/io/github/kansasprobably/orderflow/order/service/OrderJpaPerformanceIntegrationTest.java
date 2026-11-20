@@ -85,17 +85,17 @@ public class OrderJpaPerformanceIntegrationTest {
 
     @Test
     void shouldLoadOrderWithItemsInSingleQuery() {
-        Customer customer = createCustomer("Vasiliy", "vasya@mail.ru","+79995221798");
+        Customer customer = createCustomer("Vasiliy", "vasya@mail.ru", "+79995221798");
 
         Product firstProduct = createProduct("SKU-001", "iphone", new BigDecimal("80000.00"));
-        Product secondProduct = createProduct("SKU-002","macbook",new BigDecimal("150000.00"));
+        Product secondProduct = createProduct("SKU-002", "macbook", new BigDecimal("150000.00"));
 
-        Warehouse warehouse = createWarehouse("MSK-01","Moscow warehouse");
+        Warehouse warehouse = createWarehouse("MSK-01", "Moscow warehouse");
 
         Order order = new Order(customer);
 
-        order.addItem(firstProduct,warehouse,1);
-        order.addItem(secondProduct,warehouse,2);
+        order.addItem(firstProduct, warehouse, 1);
+        order.addItem(secondProduct, warehouse, 2);
 
         orderRepository.saveAndFlush(order);
 
@@ -110,34 +110,34 @@ public class OrderJpaPerformanceIntegrationTest {
 
     @Test
     void shouldLoadOrderPageWithItemsWithoutNPlusOne() {
-        Customer customer = createCustomer("Vasiliy", "vasya@mail.ru","+79995221798");
+        Customer customer = createCustomer("Vasiliy", "vasya@mail.ru", "+79995221798");
 
         Product firstProduct = createProduct("SKU-001", "iphone", new BigDecimal("80000.00"));
         Product secondProduct = createProduct("SKU-002", "samsung", new BigDecimal("60000.00"));
 
-        Warehouse warehouse = createWarehouse("MSK-01","Moscow warehouse");
+        Warehouse warehouse = createWarehouse("MSK-01", "Moscow warehouse");
 
         Order firstOrder = new Order(customer);
-        firstOrder.addItem(firstProduct,warehouse,1);
-        firstOrder.addItem(secondProduct,warehouse,1);
+        firstOrder.addItem(firstProduct, warehouse, 1);
+        firstOrder.addItem(secondProduct, warehouse, 1);
 
         Order secondOrder = new Order(customer);
-        secondOrder.addItem(firstProduct,warehouse,1);
-        secondOrder.addItem(secondProduct,warehouse,1);
+        secondOrder.addItem(firstProduct, warehouse, 1);
+        secondOrder.addItem(secondProduct, warehouse, 1);
 
         Order thirdOrder = new Order(customer);
-        thirdOrder.addItem(firstProduct,warehouse,1);
-        thirdOrder.addItem(secondProduct,warehouse,1);
+        thirdOrder.addItem(firstProduct, warehouse, 1);
+        thirdOrder.addItem(secondProduct, warehouse, 1);
 
         Order fourthOrder = new Order(customer);
-        fourthOrder.addItem(firstProduct,warehouse,1);
-        fourthOrder.addItem(secondProduct,warehouse,1);
+        fourthOrder.addItem(firstProduct, warehouse, 1);
+        fourthOrder.addItem(secondProduct, warehouse, 1);
 
-        orderRepository.saveAllAndFlush(List.of(firstOrder,secondOrder,thirdOrder,fourthOrder));
+        orderRepository.saveAllAndFlush(List.of(firstOrder, secondOrder, thirdOrder, fourthOrder));
 
         statistics.clear();
 
-        Pageable pageable = PageRequest.of(0,3);
+        Pageable pageable = PageRequest.of(0, 3);
 
         Page<OrderResponse> result = orderService.getOrders(
                 null,
@@ -165,8 +165,7 @@ public class OrderJpaPerformanceIntegrationTest {
     }
 
 
-
-    private Customer createCustomer(String name, String email, String phone){
+    private Customer createCustomer(String name, String email, String phone) {
         return customerRepository.save(
                 new Customer(
                         name,
@@ -194,7 +193,6 @@ public class OrderJpaPerformanceIntegrationTest {
                 )
         );
     }
-
 
 
 }

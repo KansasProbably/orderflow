@@ -21,8 +21,8 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<CustomerResponse> createCustomer(
             @Valid @RequestBody CreateCustomerRequest createCustomerRequest
-            ) {
-        CustomerResponse customerResponse =  customerService.createCustomer(createCustomerRequest);
+    ) {
+        CustomerResponse customerResponse = customerService.createCustomer(createCustomerRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(customerResponse);
@@ -31,7 +31,7 @@ public class CustomerController {
     @GetMapping("/{id}")
     public CustomerResponse getCustomerById(
             @PathVariable UUID id
-            ) {
+    ) {
         return customerService.getCustomerById(id);
     }
 

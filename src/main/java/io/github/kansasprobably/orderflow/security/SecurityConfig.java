@@ -52,10 +52,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**")
-                        .hasAnyRole("ADMIN","MANAGER")
+                        .hasAnyRole("ADMIN", "MANAGER")
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/orders/**")
-                        .hasAnyRole("ADMIN","MANAGER")
+                        .hasAnyRole("ADMIN", "MANAGER")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/products/**")
                         .hasRole("ADMIN")
@@ -64,15 +64,15 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/stocks/**")
-                        .hasAnyRole("ADMIN","MANAGER")
+                        .hasAnyRole("ADMIN", "MANAGER")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/orders/**")
-                        .hasAnyRole("ADMIN","MANAGER")
+                        .hasAnyRole("ADMIN", "MANAGER")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/users")
                         .hasRole("ADMIN")
 
-                        .requestMatchers(EndpointRequest.to("health","prometheus"))
+                        .requestMatchers(EndpointRequest.to("health", "prometheus"))
                         .permitAll()
 
                         .requestMatchers(EndpointRequest.to("info"))

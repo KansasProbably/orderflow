@@ -77,10 +77,10 @@ public class ProductServiceIntegrationTest {
                 new BigDecimal("55000.00")
         );
 
-        productRepository.saveAll(List.of(firstProduct,secondProduct,thirdProduct));
+        productRepository.saveAll(List.of(firstProduct, secondProduct, thirdProduct));
 
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<ProductResponse> result = productService.getProducts(
                 null,
@@ -115,9 +115,9 @@ public class ProductServiceIntegrationTest {
 
         thirdProduct.changeStatus(ProductStatus.INACTIVE);
 
-        productRepository.saveAll(List.of(firstProduct,secondProduct,thirdProduct));
+        productRepository.saveAll(List.of(firstProduct, secondProduct, thirdProduct));
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<ProductResponse> result = productService.getProducts(
                 ProductStatus.ACTIVE,
@@ -153,9 +153,9 @@ public class ProductServiceIntegrationTest {
                 new BigDecimal("55000.00")
         );
 
-        productRepository.saveAll(List.of(firstProduct,secondProduct,thirdProduct));
+        productRepository.saveAll(List.of(firstProduct, secondProduct, thirdProduct));
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<ProductResponse> result = productService.getProducts(
                 null,
@@ -168,7 +168,7 @@ public class ProductServiceIntegrationTest {
 
         assertThat(result.getContent())
                 .extracting(ProductResponse::name)
-                .containsExactlyInAnyOrder("iphone","IPHONE 13 case");
+                .containsExactlyInAnyOrder("iphone", "IPHONE 13 case");
     }
 
     @Test
@@ -193,9 +193,9 @@ public class ProductServiceIntegrationTest {
 
         secondProduct.changeStatus(ProductStatus.INACTIVE);
 
-        productRepository.saveAll(List.of(firstProduct,secondProduct,thirdProduct));
+        productRepository.saveAll(List.of(firstProduct, secondProduct, thirdProduct));
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
 
         Page<ProductResponse> result = productService.getProducts(
                 ProductStatus.ACTIVE,
@@ -242,9 +242,9 @@ public class ProductServiceIntegrationTest {
                 new BigDecimal("55000.00")
         );
 
-        productRepository.saveAll(List.of(firstProduct,secondProduct,thirdProduct, fourthProduct, fifthProduct));
+        productRepository.saveAll(List.of(firstProduct, secondProduct, thirdProduct, fourthProduct, fifthProduct));
 
-        Pageable pageable = PageRequest.of(1,2, Sort.by("sku").ascending());
+        Pageable pageable = PageRequest.of(1, 2, Sort.by("sku").ascending());
 
         Page<ProductResponse> result = productService.getProducts(
                 null,
@@ -260,7 +260,7 @@ public class ProductServiceIntegrationTest {
 
         assertThat(result.getContent())
                 .extracting(ProductResponse::sku)
-                .containsExactly("SKU-003","SKU-004");
+                .containsExactly("SKU-003", "SKU-004");
 
     }
 
@@ -284,9 +284,9 @@ public class ProductServiceIntegrationTest {
                 new BigDecimal("55000.00")
         );
 
-        productRepository.saveAll(List.of(firstProduct,secondProduct,thirdProduct));
+        productRepository.saveAll(List.of(firstProduct, secondProduct, thirdProduct));
 
-        Pageable pageable = PageRequest.of(0,20, Sort.by("price").descending());
+        Pageable pageable = PageRequest.of(0, 20, Sort.by("price").descending());
 
         Page<ProductResponse> result = productService.getProducts(
                 null,
@@ -302,7 +302,6 @@ public class ProductServiceIntegrationTest {
                         new BigDecimal("300.00")
                 );
     }
-
 
 
 }

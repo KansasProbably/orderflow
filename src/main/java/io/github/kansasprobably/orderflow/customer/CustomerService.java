@@ -38,7 +38,7 @@ public class CustomerService {
     public List<CustomerResponse> getAllCustomers() {
         List<Customer> customers = customerRepository.findAll();
         return customers.stream()
-                .map(customerMapper :: toCustomerResponse)
+                .map(customerMapper::toCustomerResponse)
                 .toList();
     }
 

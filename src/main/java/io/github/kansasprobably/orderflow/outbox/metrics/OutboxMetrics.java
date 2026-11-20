@@ -1,6 +1,5 @@
 package io.github.kansasprobably.orderflow.outbox.metrics;
 
-import io.github.kansasprobably.orderflow.outbox.OutboxEvent;
 import io.github.kansasprobably.orderflow.outbox.OutboxEventRepository;
 import io.github.kansasprobably.orderflow.outbox.OutboxEventStatus;
 import io.micrometer.core.instrument.Counter;
@@ -24,10 +23,10 @@ public class OutboxMetrics {
                 .register(meterRegistry);
 
         Gauge.builder(
-                "outbox.events.pending",
-                outboxEventRepository,
-                repository -> repository.countByStatus(OutboxEventStatus.NEW)
-        )
+                        "outbox.events.pending",
+                        outboxEventRepository,
+                        repository -> repository.countByStatus(OutboxEventStatus.NEW)
+                )
                 .description("Current number of pending outbox events")
                 .register(meterRegistry);
     }

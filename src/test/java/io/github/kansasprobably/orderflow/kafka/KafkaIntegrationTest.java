@@ -57,7 +57,7 @@ public class KafkaIntegrationTest {
 
         ArgumentCaptor<OrderConfirmedEvent> captor = ArgumentCaptor.forClass(OrderConfirmedEvent.class);
 
-        verify(orderConfirmedConsumer,timeout(5000))
+        verify(orderConfirmedConsumer, timeout(5000))
                 .consume(captor.capture());
 
         OrderConfirmedEvent received = captor.getValue();

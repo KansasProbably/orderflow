@@ -5,7 +5,6 @@ import io.github.kansasprobably.orderflow.order.Order;
 import io.github.kansasprobably.orderflow.order.OrderRepository;
 import io.github.kansasprobably.orderflow.order.OrderService;
 import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
-import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
 import io.github.kansasprobably.orderflow.order.exception.InvalidOrderStatusTransitionException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
 import io.github.kansasprobably.orderflow.outbox.OutboxService;
@@ -53,11 +52,11 @@ public class OrderServiceTest {
                 "79995221798"
         );
 
-        ReflectionTestUtils.setField(customer,"id",customerId);
+        ReflectionTestUtils.setField(customer, "id", customerId);
 
         Order order = new Order(customer);
 
-        ReflectionTestUtils.setField(order,"id",orderId);
+        ReflectionTestUtils.setField(order, "id", orderId);
 
         when(orderRepository.findById(orderId))
                 .thenReturn(Optional.of(order));
@@ -95,7 +94,7 @@ public class OrderServiceTest {
 
         Order order = new Order(customer);
 
-        ReflectionTestUtils.setField(order,"id",orderId);
+        ReflectionTestUtils.setField(order, "id", orderId);
 
         order.cancel();
 
@@ -106,7 +105,7 @@ public class OrderServiceTest {
                 .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
 
-        verify(outboxService,never())
+        verify(outboxService, never())
                 .saveOrderConfirmedEvent(any());
 
     }

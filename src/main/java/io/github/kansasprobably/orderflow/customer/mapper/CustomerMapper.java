@@ -15,6 +15,6 @@ public class CustomerMapper {
 
     public CustomerResponse toCustomerResponse(Customer customer) {
         return new CustomerResponse(customer.getId(), customer.getName(), customer.getEmail(),
-                customer.getPhone(), customer.getStatus(),customer.getCreatedAt(),customer.getUpdatedAt());
+                customer.getPhone(), customer.getStatus(), customer.getCreatedAt(), customer.getUpdatedAt());
     }
 }

@@ -59,7 +59,7 @@ public class ProductController {
     public ProductResponse updateStatus(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateProductStatusRequest request
-            ) {
+    ) {
         return productService.updateStatus(id, request);
     }
 }

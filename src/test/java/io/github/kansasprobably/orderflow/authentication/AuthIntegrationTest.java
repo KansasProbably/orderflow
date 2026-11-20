@@ -58,15 +58,15 @@ public class AuthIntegrationTest {
         userRepository.saveAndFlush(user);
 
         mockMvc.perform(
-                post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "email": "admin@example.com",
-                                    "password": "password"
-                                }
-                                """)
-        )
+                        post("/api/v1/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "admin@example.com",
+                                            "password": "password"
+                                        }
+                                        """)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -88,11 +88,11 @@ public class AuthIntegrationTest {
                         post("/api/v1/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
-                                {
-                                    "email": "admin@example.com",
-                                    "password": "wrong-password"
-                                }
-                                """)
+                                        {
+                                            "email": "admin@example.com",
+                                            "password": "wrong-password"
+                                        }
+                                        """)
                 )
                 .andExpect(status().isUnauthorized())
                 .andExpect(content()
@@ -113,15 +113,15 @@ public class AuthIntegrationTest {
         userRepository.saveAndFlush(user);
 
         MvcResult response = mockMvc.perform(
-                post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "email": "admin@example.com",
-                                    "password": "password"
-                                }
-                                """)
-        )
+                        post("/api/v1/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "admin@example.com",
+                                            "password": "password"
+                                        }
+                                        """)
+                )
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -135,12 +135,12 @@ public class AuthIntegrationTest {
         );
 
         mockMvc.perform(
-                get("/api/v1/products")
-                        .header(
-                                HttpHeaders.AUTHORIZATION,
-                                "Bearer " + token
-                        )
-        )
+                        get("/api/v1/products")
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + token
+                                )
+                )
                 .andExpect(status().isOk());
     }
 
@@ -158,11 +158,11 @@ public class AuthIntegrationTest {
                         post("/api/v1/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
-                                {
-                                    "email": "manager@example.com",
-                                    "password": "password"
-                                }
-                                """)
+                                        {
+                                            "email": "manager@example.com",
+                                            "password": "password"
+                                        }
+                                        """)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -202,15 +202,15 @@ public class AuthIntegrationTest {
         userRepository.saveAndFlush(user);
 
         MvcResult response = mockMvc.perform(
-                post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "email": "manager@example.com",
-                                    "password": "password"
-                                }
-                                """)
-        )
+                        post("/api/v1/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "manager@example.com",
+                                            "password": "password"
+                                        }
+                                        """)
+                )
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -227,12 +227,12 @@ public class AuthIntegrationTest {
         userRepository.flush();
 
         mockMvc.perform(
-                get("/api/v1/products")
-                        .header(
-                                HttpHeaders.AUTHORIZATION,
-                                "Bearer " + token
-                        )
-        )
+                        get("/api/v1/products")
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + token
+                                )
+                )
                 .andExpect(jsonPath("$.status").value(401))
                 .andExpect(jsonPath("$.message").value("Authentication required"))
                 .andExpect(jsonPath("$.timestamp").exists());

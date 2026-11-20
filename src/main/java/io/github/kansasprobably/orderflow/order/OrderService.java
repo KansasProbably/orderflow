@@ -7,10 +7,8 @@ import io.github.kansasprobably.orderflow.order.dto.CreateOrderItemRequest;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
-import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
-import io.github.kansasprobably.orderflow.order.metrics.OrderMetrics;
 import io.github.kansasprobably.orderflow.order.metrics.event.OrderConfirmedMetricEvent;
 import io.github.kansasprobably.orderflow.order.metrics.event.OrderCreatedMetricEvent;
 import io.github.kansasprobably.orderflow.order.specification.OrderSpecifications;
@@ -38,7 +36,6 @@ public class OrderService {
     private final StockService stockService;
     private final OrderMapper orderMapper;
     private final OutboxService outboxService;
-    private final OrderMetrics orderMetrics;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -141,7 +138,7 @@ public class OrderService {
             specification = specification.and(OrderSpecifications.hasBeenCreatedTo(createdTo));
         }
 
-        return orderRepository.findAll(specification,pageable)
+        return orderRepository.findAll(specification, pageable)
                 .map(orderMapper::toOrderResponse);
     }
 }

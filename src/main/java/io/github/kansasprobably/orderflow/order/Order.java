@@ -64,9 +64,9 @@ public class Order {
                 .filter(item ->
                         item.getProduct().getId()
                                 .equals(product.getId())
-                        &&
-                        item.getWarehouse().getId()
-                                .equals(warehouse.getId())
+                                &&
+                                item.getWarehouse().getId()
+                                        .equals(warehouse.getId())
                 )
                 .findFirst()
                 .orElse(null);

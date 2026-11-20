@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         value = WarehouseController.class,
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASSIGNABLE_TYPE,
-        classes = JwtAuthenticationFilter.class
+                classes = JwtAuthenticationFilter.class
         )
 )
 public class WarehouseControllerTest {
@@ -53,11 +53,11 @@ public class WarehouseControllerTest {
                         post("/api/v1/warehouses")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
-                            {
-                              "code": "MSK-01",
-                              "name": "Moscow warehouse"
-                            }
-                            """)
+                                        {
+                                          "code": "MSK-01",
+                                          "name": "Moscow warehouse"
+                                        }
+                                        """)
                 )
                 .andExpect(status().isCreated())
                 .andExpect(header().string(
@@ -96,8 +96,8 @@ public class WarehouseControllerTest {
         UUID firstWarehouseId = UUID.randomUUID();
         UUID secondWarehouseId = UUID.randomUUID();
 
-        WarehouseResponse firstWarehouse = createResponse(firstWarehouseId,"MSK-01", "Moscow warehouse");
-        WarehouseResponse secondWarehouse = createResponse(secondWarehouseId,"SPB-01", "Saint-Petersburg warehouse");
+        WarehouseResponse firstWarehouse = createResponse(firstWarehouseId, "MSK-01", "Moscow warehouse");
+        WarehouseResponse secondWarehouse = createResponse(secondWarehouseId, "SPB-01", "Saint-Petersburg warehouse");
 
 
         when(warehouseService.getAllWarehouses())
@@ -131,11 +131,11 @@ public class WarehouseControllerTest {
         mockMvc.perform(post("/api/v1/warehouses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {
-                              "code": "",
-                              "name": ""
-                            }
-                            """)
+                                {
+                                  "code": "",
+                                  "name": ""
+                                }
+                                """)
                 )
                 .andExpect(status().isBadRequest());
 
@@ -150,11 +150,11 @@ public class WarehouseControllerTest {
         mockMvc.perform(post("/api/v1/warehouses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {
-                              "code": "MSK-01",
-                              "name": "Moscow warehouse"
-                            }
-                            """)
+                                {
+                                  "code": "MSK-01",
+                                  "name": "Moscow warehouse"
+                                }
+                                """)
                 )
                 .andExpect(status().isConflict());
 

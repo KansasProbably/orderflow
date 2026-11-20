@@ -26,7 +26,7 @@ class CustomerRepositoryTest {
 
     @Container
     @ServiceConnection
-    private  static final PostgreSQLContainer postgreSQLContainer =
+    private static final PostgreSQLContainer postgreSQLContainer =
             new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 
     @Autowired
@@ -37,7 +37,7 @@ class CustomerRepositoryTest {
 
     @Test
     void shouldSaveCustomer() {
-        Customer customer = new Customer("ООО Ромашка", "test@example.com",null);
+        Customer customer = new Customer("ООО Ромашка", "test@example.com", null);
 
         Customer savedCustomer = customerRepository.saveAndFlush(customer);
 
@@ -54,7 +54,7 @@ class CustomerRepositoryTest {
 
     @Test
     void shouldFindCustomerById() {
-        Customer customer = new Customer("ООО Ромашка", "test@example.com",null);
+        Customer customer = new Customer("ООО Ромашка", "test@example.com", null);
 
         Customer savedCustomer = customerRepository.saveAndFlush(customer);
 
@@ -73,7 +73,7 @@ class CustomerRepositoryTest {
 
     @Test
     void shouldReturnTrueWhenEmailAlreadyExists() {
-        Customer customer = new Customer("ООО Ромашка", "test@example.com",null);
+        Customer customer = new Customer("ООО Ромашка", "test@example.com", null);
 
         customerRepository.saveAndFlush(customer);
 
@@ -84,8 +84,8 @@ class CustomerRepositoryTest {
 
     @Test
     void shouldThrowDataIntegrityViolationExceptionWhenEmailIsDuplicated() {
-        Customer firstCustomer = new Customer("ООО Ромашка", "test@example.com",null);
-        Customer secondCustomer = new Customer("ООО Розочка", "test@example.com",null);
+        Customer firstCustomer = new Customer("ООО Ромашка", "test@example.com", null);
+        Customer secondCustomer = new Customer("ООО Розочка", "test@example.com", null);
 
         customerRepository.saveAndFlush(firstCustomer);
 
