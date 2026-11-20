@@ -37,7 +37,7 @@ class CustomerServiceTest {
     @Test
     void shouldCreateCustomer() {
         CreateCustomerRequest request = new CreateCustomerRequest(
-                "ООО Ромашка", "test@example.com",null);
+                "ООО Ромашка", "test@example.com", null);
 
         Customer customer = new Customer(request.name(), request.email(), request.phone());
 
@@ -47,7 +47,7 @@ class CustomerServiceTest {
         OffsetDateTime updatedAt = OffsetDateTime.parse("2026-01-02T11:00:00Z");
 
         CustomerResponse expectedResponse = new CustomerResponse(
-                savedCustomer.getId(),savedCustomer.getName(),savedCustomer.getEmail(), savedCustomer.getPhone(), savedCustomer.getStatus(),
+                savedCustomer.getId(), savedCustomer.getName(), savedCustomer.getEmail(), savedCustomer.getPhone(), savedCustomer.getStatus(),
                 createdAt, updatedAt);
 
         when(customerRepository.existsByEmailIgnoreCase(request.email()))
@@ -64,7 +64,7 @@ class CustomerServiceTest {
 
         CustomerResponse actualResponse = customerService.createCustomer(request);
 
-        assertEquals(expectedResponse,actualResponse);
+        assertEquals(expectedResponse, actualResponse);
 
         verify(customerRepository).save(customer);
 
@@ -74,7 +74,7 @@ class CustomerServiceTest {
     void shouldThrowEmailAlreadyExists() {
 
         CreateCustomerRequest request = new CreateCustomerRequest(
-                "ООО Ромашка", "test@example.com",null);
+                "ООО Ромашка", "test@example.com", null);
 
 
         when(customerRepository.existsByEmailIgnoreCase(request.email()))
@@ -83,7 +83,7 @@ class CustomerServiceTest {
         assertThrows(CustomerEmailAlreadyExistsException.class,
                 () -> customerService.createCustomer(request));
 
-        verify(customerRepository,never())
+        verify(customerRepository, never())
                 .save(any());
 
 
@@ -94,9 +94,9 @@ class CustomerServiceTest {
         UUID id = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
         OffsetDateTime createdAt = OffsetDateTime.parse("2026-01-01T10:00:00Z");
         OffsetDateTime updatedAt = OffsetDateTime.parse("2026-01-02T11:00:00Z");
-        Customer customer = new Customer("ООО Ромашка", "test@example.com",null);
-        CustomerResponse expectedCustomerResponse = new CustomerResponse(id,customer.getName(),customer.getEmail(),
-                customer.getPhone(), customer.getStatus(),createdAt,updatedAt);
+        Customer customer = new Customer("ООО Ромашка", "test@example.com", null);
+        CustomerResponse expectedCustomerResponse = new CustomerResponse(id, customer.getName(), customer.getEmail(),
+                customer.getPhone(), customer.getStatus(), createdAt, updatedAt);
         when(customerRepository.findById(id))
                 .thenReturn(Optional.of(customer));
 
@@ -105,7 +105,7 @@ class CustomerServiceTest {
 
         CustomerResponse actualCustomerResponse = customerService.getCustomerById(id);
 
-        assertEquals(expectedCustomerResponse,actualCustomerResponse);
+        assertEquals(expectedCustomerResponse, actualCustomerResponse);
 
     }
 
@@ -119,7 +119,7 @@ class CustomerServiceTest {
         assertThrows(CustomerNotFoundException.class,
                 () -> customerService.getCustomerById(id));
 
-        verify(customerMapper,never())
+        verify(customerMapper, never())
                 .toCustomerResponse(any());
 
     }

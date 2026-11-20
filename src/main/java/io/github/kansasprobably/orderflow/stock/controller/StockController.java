@@ -13,7 +13,6 @@ import java.net.URI;
 import java.util.UUID;
 
 
-
 @RestController
 @RequestMapping("/api/v1/stocks")
 @RequiredArgsConstructor
@@ -23,7 +22,7 @@ public class StockController {
 
     @PostMapping
     public ResponseEntity<StockResponse> createStock(
-            @Valid @RequestBody  CreateStockRequest request) {
+            @Valid @RequestBody CreateStockRequest request) {
         StockResponse response = stockService.createStock(request);
 
         URI location = URI.create("/api/v1/stocks/" + response.id());

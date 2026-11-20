@@ -51,7 +51,7 @@ public class OrderControllerTest {
         UUID warehouseId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.parse("2026-01-01T10:00:00Z");
         OffsetDateTime updatedAt = OffsetDateTime.parse("2026-01-02T11:00:00Z");
-        OrderResponse orderResponse= new OrderResponse(
+        OrderResponse orderResponse = new OrderResponse(
                 orderId,
                 customerId,
                 OrderStatus.NEW,
@@ -64,24 +64,24 @@ public class OrderControllerTest {
                 .thenReturn(orderResponse);
 
         mockMvc.perform(
-                post("/api/v1/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {
-                              "customerId": "%s",
-                              "items": [
-                                               {
-                                                 "productId": "%s",
-                                                 "warehouseId": "%s",
-                                                 "quantity": 1
-                                               }
-                                             ]
-                            }
-                            """.formatted(
-                                    customerId,
-                                    productId,
-                                    warehouseId
-                        ))
+                        post("/api/v1/orders")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "customerId": "%s",
+                                          "items": [
+                                                           {
+                                                             "productId": "%s",
+                                                             "warehouseId": "%s",
+                                                             "quantity": 1
+                                                           }
+                                                         ]
+                                        }
+                                        """.formatted(
+                                        customerId,
+                                        productId,
+                                        warehouseId
+                                ))
                 )
                 .andExpect(status().isCreated())
                 .andExpect(header().string(
@@ -96,15 +96,15 @@ public class OrderControllerTest {
     @Test
     void shouldReturn400WhenRequestInvalid() throws Exception {
         mockMvc.perform(
-                post("/api/v1/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                "customerId": null,
-                                "items": []
-                                }
-                                """)
-        )
+                        post("/api/v1/orders")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                        "customerId": null,
+                                        "items": []
+                                        }
+                                        """)
+                )
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(orderService);
@@ -117,8 +117,8 @@ public class OrderControllerTest {
                 .thenThrow(new OrderNotFoundException(id));
 
         mockMvc.perform(
-                get("/api/v1/orders/{id}", id)
-        )
+                        get("/api/v1/orders/{id}", id)
+                )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
     }
@@ -143,8 +143,8 @@ public class OrderControllerTest {
                 .thenReturn(orderResponse);
 
         mockMvc.perform(
-                get("/api/v1/orders/{id}", orderId)
-        )
+                        get("/api/v1/orders/{id}", orderId)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(orderId.toString()))
                 .andExpect(jsonPath("$.customerId").value(customerId.toString()))
@@ -162,25 +162,25 @@ public class OrderControllerTest {
         UUID warehouseId = UUID.randomUUID();
 
         mockMvc.perform(
-                post("/api/v1/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {
-                              "customerId": "%s",
-                              "items": [
-                                               {
-                                                 "productId": "%s",
-                                                 "warehouseId": "%s",
-                                                 "quantity": 0
-                                               }
-                                             ]
-                            }
-                            """.formatted(
-                                    customerId,
-                                    productId,
-                                    warehouseId
-                        ))
-        )
+                        post("/api/v1/orders")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "customerId": "%s",
+                                          "items": [
+                                                           {
+                                                             "productId": "%s",
+                                                             "warehouseId": "%s",
+                                                             "quantity": 0
+                                                           }
+                                                         ]
+                                        }
+                                        """.formatted(
+                                        customerId,
+                                        productId,
+                                        warehouseId
+                                ))
+                )
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(orderService);
     }
@@ -192,26 +192,26 @@ public class OrderControllerTest {
         UUID warehouseId = UUID.randomUUID();
 
         mockMvc.perform(
-                post("/api/v1/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {
-                              "customerId": "%s",
-                              "items": [
-                                               {
-                                                 "productId": "%s",
-                                                 "warehouseId": "%s",
-                                                 "quantity": 0
-                                               }
-                                             ],
-                              "unknownField": "value"
-                            }
-                            """.formatted(
-                                customerId,
-                                productId,
-                                warehouseId
-                        ))
-        )
+                        post("/api/v1/orders")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "customerId": "%s",
+                                          "items": [
+                                                           {
+                                                             "productId": "%s",
+                                                             "warehouseId": "%s",
+                                                             "quantity": 0
+                                                           }
+                                                         ],
+                                          "unknownField": "value"
+                                        }
+                                        """.formatted(
+                                        customerId,
+                                        productId,
+                                        warehouseId
+                                ))
+                )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message")
                         .value("Unknown field: unknownField"));
@@ -239,13 +239,13 @@ public class OrderControllerTest {
                 .thenReturn(orderResponse);
 
         mockMvc.perform(
-                post("/api/v1/orders/{id}/confirm", orderId)
-        )
+                        post("/api/v1/orders/{id}/confirm", orderId)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id")
                         .value(orderId.toString()))
                 .andExpect(jsonPath("$.customerId")
-                    .value(customerId.toString()))
+                        .value(customerId.toString()))
                 .andExpect(jsonPath("$.orderStatus")
                         .value("CONFIRMED"));
 
@@ -315,8 +315,8 @@ public class OrderControllerTest {
 
         Page<OrderResponse> page =
                 new PageImpl<>(
-                        List.of(firstOrder,secondOrder),
-                        PageRequest.of(0,20),
+                        List.of(firstOrder, secondOrder),
+                        PageRequest.of(0, 20),
                         2
                 );
 
@@ -339,7 +339,7 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.number").value(0))
                 .andExpect(jsonPath("$.size").value(20));
 
-        verify(orderService).getOrders(isNull(),isNull(),isNull(), isNull(), any(Pageable.class));
+        verify(orderService).getOrders(isNull(), isNull(), isNull(), isNull(), any(Pageable.class));
     }
 
     @Test
@@ -361,7 +361,7 @@ public class OrderControllerTest {
         )).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/orders")
-                        .param("page","2")
+                        .param("page", "2")
                         .param("size", "10")
                         .param("sort", "createdAt,asc"))
                 .andExpect(status().isOk());
@@ -409,9 +409,9 @@ public class OrderControllerTest {
 
         mockMvc.perform(get("/api/v1/orders")
                         .param("status", "NEW")
-                        .param("customerId",customerId.toString())
+                        .param("customerId", customerId.toString())
                         .param("createdFrom", createdFrom.toString())
-                        .param("createdTo",createdTo.toString()))
+                        .param("createdTo", createdTo.toString()))
                 .andExpect(status().isOk());
 
         verify(orderService).getOrders(

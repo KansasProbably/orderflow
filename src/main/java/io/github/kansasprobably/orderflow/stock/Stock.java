@@ -19,9 +19,9 @@ import java.util.UUID;
         name = "stocks",
         uniqueConstraints = {
                 @UniqueConstraint(
-                    name = "uk_stock_product_warehouse",
+                        name = "uk_stock_product_warehouse",
                         columnNames = {
-                            "product_id",
+                                "product_id",
                                 "warehouse_id"
                         }
                 )
@@ -77,7 +77,7 @@ public class Stock {
         reservedQuantity += quantity;
     }
 
-    public void release (Integer quantity) {
+    public void release(Integer quantity) {
         if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");
         }

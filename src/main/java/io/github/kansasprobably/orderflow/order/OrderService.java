@@ -7,14 +7,16 @@ import io.github.kansasprobably.orderflow.order.dto.CreateOrderItemRequest;
 import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.dto.OrderResponse;
 import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
-import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
+import io.github.kansasprobably.orderflow.order.metrics.event.OrderConfirmedMetricEvent;
+import io.github.kansasprobably.orderflow.order.metrics.event.OrderCreatedMetricEvent;
 import io.github.kansasprobably.orderflow.order.specification.OrderSpecifications;
 import io.github.kansasprobably.orderflow.outbox.OutboxService;
 import io.github.kansasprobably.orderflow.stock.Stock;
 import io.github.kansasprobably.orderflow.stock.StockService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,7 +35,8 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final StockService stockService;
     private final OrderMapper orderMapper;
-   private final OutboxService outboxService;
+    private final OutboxService outboxService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest createOrderRequest) {
@@ -58,6 +61,9 @@ public class OrderService {
         }
 
         Order savedOrder = orderRepository.save(order);
+
+        eventPublisher.publishEvent(new OrderCreatedMetricEvent(savedOrder.getId()));
+
         return orderMapper.toOrderResponse(savedOrder);
     }
 
@@ -83,6 +89,8 @@ public class OrderService {
         );
 
         outboxService.saveOrderConfirmedEvent(orderConfirmedEvent);
+
+        eventPublisher.publishEvent(new OrderConfirmedMetricEvent(order.getId()));
 
         return orderMapper.toOrderResponse(order);
     }
@@ -130,7 +138,7 @@ public class OrderService {
             specification = specification.and(OrderSpecifications.hasBeenCreatedTo(createdTo));
         }
 
-        return orderRepository.findAll(specification,pageable)
+        return orderRepository.findAll(specification, pageable)
                 .map(orderMapper::toOrderResponse);
     }
 }

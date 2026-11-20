@@ -49,7 +49,7 @@ public class ProductControllerTest {
     void shouldCreateProduct() throws Exception {
         UUID productId = UUID.randomUUID();
 
-        ProductResponse response = createResponse(productId,ProductStatus.ACTIVE);
+        ProductResponse response = createResponse(productId, ProductStatus.ACTIVE);
 
         when(productService.createProduct(any(CreateProductRequest.class)))
                 .thenReturn(response);
@@ -58,12 +58,12 @@ public class ProductControllerTest {
                         post("/api/v1/products")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
-                            {
-                              "sku": "SKU-001",
-                              "name": "iPhone",
-                              "price": 280000.00
-                            }
-                            """)
+                                        {
+                                          "sku": "SKU-001",
+                                          "name": "iPhone",
+                                          "price": 280000.00
+                                        }
+                                        """)
                 )
                 .andExpect(status().isCreated())
                 .andExpect(header().string(
@@ -84,7 +84,7 @@ public class ProductControllerTest {
     void shouldReturnProduct() throws Exception {
         UUID productId = UUID.randomUUID();
 
-        ProductResponse response = createResponse(productId,ProductStatus.ACTIVE);
+        ProductResponse response = createResponse(productId, ProductStatus.ACTIVE);
 
         when(productService.getProductById(productId))
                 .thenReturn(response);
@@ -106,7 +106,7 @@ public class ProductControllerTest {
         UUID firstProductId = UUID.randomUUID();
         UUID secondProductId = UUID.randomUUID();
 
-        ProductResponse firstProduct = createResponse(firstProductId,ProductStatus.ACTIVE);
+        ProductResponse firstProduct = createResponse(firstProductId, ProductStatus.ACTIVE);
 
         ProductResponse secondProduct = new ProductResponse(
                 secondProductId,
@@ -120,8 +120,8 @@ public class ProductControllerTest {
 
         Page<ProductResponse> page =
                 new PageImpl<>(
-                        List.of(firstProduct,secondProduct),
-                        PageRequest.of(0,20),
+                        List.of(firstProduct, secondProduct),
+                        PageRequest.of(0, 20),
                         2
                 );
 
@@ -142,7 +142,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.number").value(0))
                 .andExpect(jsonPath("$.size").value(20));
 
-        verify(productService).getProducts(isNull(),isNull(),any(Pageable.class));
+        verify(productService).getProducts(isNull(), isNull(), any(Pageable.class));
     }
 
     @Test
@@ -162,9 +162,9 @@ public class ProductControllerTest {
         )).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/products")
-                    .param("page","2")
-                    .param("size", "10")
-                    .param("sort", "price,desc"))
+                        .param("page", "2")
+                        .param("size", "10")
+                        .param("sort", "price,desc"))
                 .andExpect(status().isOk());
 
         ArgumentCaptor<Pageable> captor =
@@ -200,8 +200,8 @@ public class ProductControllerTest {
         )).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/products")
-                    .param("status", "ACTIVE")
-                    .param("name","iphone"))
+                        .param("status", "ACTIVE")
+                        .param("name", "iphone"))
                 .andExpect(status().isOk());
 
         verify(productService).getProducts(
@@ -247,7 +247,7 @@ public class ProductControllerTest {
                 .thenThrow(new ProductNotFoundException(productId));
 
         mockMvc.perform(get("/api/v1/products/{id}", productId)
-        )
+                )
                 .andExpect(status().isNotFound());
 
         verify(productService).getProductById(productId);
@@ -258,12 +258,12 @@ public class ProductControllerTest {
         mockMvc.perform(post("/api/v1/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {
-                              "sku": "",
-                              "name": "",
-                              "price": -1
-                            }
-                            """)
+                                {
+                                  "sku": "",
+                                  "name": "",
+                                  "price": -1
+                                }
+                                """)
                 )
                 .andExpect(status().isBadRequest());
 
@@ -276,14 +276,14 @@ public class ProductControllerTest {
                 .thenThrow(new DuplicateProductSkuException("SKU-001"));
 
         mockMvc.perform(post("/api/v1/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                            {
-                              "sku": "SKU-001",
-                              "name": "iPhone",
-                              "price": 280000.00
-                            }
-                            """)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "sku": "SKU-001",
+                                  "name": "iPhone",
+                                  "price": 280000.00
+                                }
+                                """)
                 )
                 .andExpect(status().isConflict());
 
@@ -303,19 +303,18 @@ public class ProductControllerTest {
                 .thenReturn(response);
 
         mockMvc.perform(patch("/api/v1/products/{id}/status", productId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                            "status": "INACTIVE"
-                        }
-                        """)
-        )
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "status": "INACTIVE"
+                                }
+                                """)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(productId.toString()))
                 .andExpect(jsonPath("$.status").value("INACTIVE"));
 
-        verify(productService).updateStatus(productId,request);
-
+        verify(productService).updateStatus(productId, request);
 
 
     }

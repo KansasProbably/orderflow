@@ -1,6 +1,7 @@
 package io.github.kansasprobably.orderflow.outbox;
 
 import io.github.kansasprobably.orderflow.order.event.OrderConfirmedEvent;
+import io.github.kansasprobably.orderflow.outbox.exception.OutboxSerializationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;

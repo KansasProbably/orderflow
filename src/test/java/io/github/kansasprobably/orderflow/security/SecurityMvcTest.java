@@ -34,8 +34,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest({
-            ProductController.class,
-            UserController.class
+        ProductController.class,
+        UserController.class
 })
 @Import({
         SecurityConfig.class,
@@ -81,11 +81,11 @@ public class SecurityMvcTest {
                 .thenReturn(false);
 
         mockMvc.perform(get("/api/v1/products")
-                .header(
-                        HttpHeaders.AUTHORIZATION,
-                        "Bearer " + token
+                        .header(
+                                HttpHeaders.AUTHORIZATION,
+                                "Bearer " + token
+                        )
                 )
-        )
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(401))
@@ -139,12 +139,12 @@ public class SecurityMvcTest {
                 .thenReturn(response);
 
         mockMvc.perform(
-                post("/api/v1/products")
-                        .with(user("admin@example.com")
-                                .roles("ADMIN"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody)
-        )
+                        post("/api/v1/products")
+                                .with(user("admin@example.com")
+                                        .roles("ADMIN"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody)
+                )
                 .andExpect(status().isCreated())
                 .andExpect(header().exists(HttpHeaders.LOCATION));
 
@@ -162,10 +162,10 @@ public class SecurityMvcTest {
         )).thenReturn(Page.empty());
 
         mockMvc.perform(
-                get("/api/v1/products")
-                        .with(user("manager@example.com")
-                                .roles("MANAGER"))
-        )
+                        get("/api/v1/products")
+                                .with(user("manager@example.com")
+                                        .roles("MANAGER"))
+                )
                 .andExpect(status().isOk());
 
         verify(productService)
@@ -179,18 +179,18 @@ public class SecurityMvcTest {
     @Test
     void shouldReturn403WhenManagerCreatesUser() throws Exception {
         mockMvc.perform(
-                post("/api/v1/users")
-                        .with(user("manager@axemple.com")
-                                .roles("MANAGER"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                    {
-                                      "email": "admin2@example.com",
-                                      "password": "password",
-                                      "role": "ADMIN"
-                                    }
-                                    """)
-        )
+                        post("/api/v1/users")
+                                .with(user("manager@axemple.com")
+                                        .roles("MANAGER"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "email": "admin2@example.com",
+                                          "password": "password",
+                                          "role": "ADMIN"
+                                        }
+                                        """)
+                )
                 .andExpect(status().isForbidden());
     }
 
@@ -214,12 +214,12 @@ public class SecurityMvcTest {
                                         .roles("ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
-                                    {
-                                      "email": "admin2@example.com",
-                                      "password": "password",
-                                      "role": "ADMIN"
-                                    }
-                                    """)
+                                        {
+                                          "email": "admin2@example.com",
+                                          "password": "password",
+                                          "role": "ADMIN"
+                                        }
+                                        """)
                 )
                 .andExpect(status().isCreated());
 

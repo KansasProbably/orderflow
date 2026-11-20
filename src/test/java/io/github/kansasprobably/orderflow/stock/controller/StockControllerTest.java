@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         value = StockController.class,
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASSIGNABLE_TYPE,
-        classes = JwtAuthenticationFilter.class
+                classes = JwtAuthenticationFilter.class
         )
 )
 public class StockControllerTest {
@@ -47,7 +47,7 @@ public class StockControllerTest {
         UUID productId = UUID.randomUUID();
         UUID warehouseId = UUID.randomUUID();
 
-        StockResponse response = createResponse(stockId,productId,warehouseId,10,0);
+        StockResponse response = createResponse(stockId, productId, warehouseId, 10, 0);
 
         when(stockService.createStock(any(CreateStockRequest.class)))
                 .thenReturn(response);
@@ -56,12 +56,12 @@ public class StockControllerTest {
                         post("/api/v1/stocks")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
-                            {
-                              "productId": "%s",
-                              "warehouseId": "%s",
-                              "availableQuantity": 10
-                            }
-                            """.formatted(productId,warehouseId))
+                                        {
+                                          "productId": "%s",
+                                          "warehouseId": "%s",
+                                          "availableQuantity": 10
+                                        }
+                                        """.formatted(productId, warehouseId))
                 )
                 .andExpect(status().isCreated())
                 .andExpect(header().string(
@@ -84,12 +84,12 @@ public class StockControllerTest {
         UUID productId = UUID.randomUUID();
         UUID warehouseId = UUID.randomUUID();
 
-        StockResponse response = createResponse(stockId,productId,warehouseId,10,0);
+        StockResponse response = createResponse(stockId, productId, warehouseId, 10, 0);
 
         when(stockService.getStockById(stockId))
                 .thenReturn(response);
 
-        mockMvc.perform(get("/api/v1/stocks/{id}",stockId))
+        mockMvc.perform(get("/api/v1/stocks/{id}", stockId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(stockId.toString()))
                 .andExpect(jsonPath("$.productId").value(response.productId().toString()))
@@ -106,9 +106,9 @@ public class StockControllerTest {
         UUID productId = UUID.randomUUID();
         UUID warehouseId = UUID.randomUUID();
 
-        StockResponse response = createResponse(stockId,productId,warehouseId,10,0);
+        StockResponse response = createResponse(stockId, productId, warehouseId, 10, 0);
 
-        when(stockService.getStockByProductIdAndWarehouseId(productId,warehouseId))
+        when(stockService.getStockByProductIdAndWarehouseId(productId, warehouseId))
                 .thenReturn(response);
 
         mockMvc.perform(get("/api/v1/stocks")
@@ -121,7 +121,7 @@ public class StockControllerTest {
                 .andExpect(jsonPath("$.availableQuantity").value(10))
                 .andExpect(jsonPath("$.reservedQuantity").value(0));
 
-        verify(stockService).getStockByProductIdAndWarehouseId(productId,warehouseId);
+        verify(stockService).getStockByProductIdAndWarehouseId(productId, warehouseId);
     }
 
     @Test
@@ -144,21 +144,21 @@ public class StockControllerTest {
         UUID warehouseId = UUID.randomUUID();
 
         when(stockService.createStock(any(CreateStockRequest.class)))
-                .thenThrow(new DuplicateStockException(productId,warehouseId));
+                .thenThrow(new DuplicateStockException(productId, warehouseId));
 
         mockMvc.perform(
                         post("/api/v1/stocks")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
-                            {
-                              "productId": "%s",
-                              "warehouseId": "%s",
-                              "availableQuantity": 10
-                            }
-                            """.formatted(productId,warehouseId))
+                                        {
+                                          "productId": "%s",
+                                          "warehouseId": "%s",
+                                          "availableQuantity": 10
+                                        }
+                                        """.formatted(productId, warehouseId))
                 )
                 .andExpect(status().isConflict()
-        );
+                );
 
         verify(stockService).createStock(any(CreateStockRequest.class));
     }
@@ -169,22 +169,22 @@ public class StockControllerTest {
         UUID productId = UUID.randomUUID();
         UUID warehouseId = UUID.randomUUID();
 
-        StockResponse response = createResponse(stockId,productId,warehouseId,20,0);
+        StockResponse response = createResponse(stockId, productId, warehouseId, 20, 0);
 
         IncreaseStockRequest request = new IncreaseStockRequest(10);
 
-        when(stockService.increaseAvailable(stockId,request))
+        when(stockService.increaseAvailable(stockId, request))
                 .thenReturn(response);
 
         mockMvc.perform(
-                post("/api/v1/stocks/{id}/increase", stockId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "quantity": 10
-                                }
-                                """)
-        )
+                        post("/api/v1/stocks/{id}/increase", stockId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "quantity": 10
+                                        }
+                                        """)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(stockId.toString()))
                 .andExpect(jsonPath("$.availableQuantity").value(20))
@@ -202,10 +202,10 @@ public class StockControllerTest {
                         post("/api/v1/stocks/{id}/increase", stockId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
-                                {
-                                    "quantity": -10
-                                }
-                                """)
+                                        {
+                                            "quantity": -10
+                                        }
+                                        """)
                 )
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(stockService);

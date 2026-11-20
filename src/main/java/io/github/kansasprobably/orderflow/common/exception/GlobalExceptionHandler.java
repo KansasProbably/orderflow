@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ValidationErrorResponse> handleValidation(
             MethodArgumentNotValidException exception
     ) {
-        Map<String,String> errors = new HashMap<>();
+        Map<String, String> errors = new HashMap<>();
 
         exception.getBindingResult()
                 .getFieldErrors()

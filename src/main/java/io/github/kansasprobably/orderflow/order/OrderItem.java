@@ -15,16 +15,16 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "order_items",
-    uniqueConstraints = {
-        @UniqueConstraint(
-                name = "uk_order_item_order_product_warehouse",
-                columnNames = {
-                        "order_id",
-                        "product_id",
-                        "warehouse_id"
-                }
-        )
-    })
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_order_item_order_product_warehouse",
+                        columnNames = {
+                                "order_id",
+                                "product_id",
+                                "warehouse_id"
+                        }
+                )
+        })
 public class OrderItem {
 
     @Id

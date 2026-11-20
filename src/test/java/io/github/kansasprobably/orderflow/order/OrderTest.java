@@ -62,7 +62,7 @@ public class OrderTest {
     }
 
     @Test
-    void shouldNotCancelCompletedOrder(){
+    void shouldNotCancelCompletedOrder() {
         Customer customer = createCustomer();
 
         Order order = new Order(customer);
@@ -79,9 +79,9 @@ public class OrderTest {
 
     private Customer createCustomer() {
         return new Customer(
-                        "Vasyan",
-                        "Vasya@mail.ru",
-                        "+79995221798"
+                "Vasyan",
+                "Vasya@mail.ru",
+                "+79995221798"
 
         );
     }

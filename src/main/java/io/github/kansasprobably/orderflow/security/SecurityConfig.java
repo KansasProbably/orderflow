@@ -2,6 +2,7 @@ package io.github.kansasprobably.orderflow.security;
 
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -51,10 +52,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**")
-                        .hasAnyRole("ADMIN","MANAGER")
+                        .hasAnyRole("ADMIN", "MANAGER")
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/orders/**")
-                        .hasAnyRole("ADMIN","MANAGER")
+                        .hasAnyRole("ADMIN", "MANAGER")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/products/**")
                         .hasRole("ADMIN")
@@ -63,13 +64,19 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/stocks/**")
-                        .hasAnyRole("ADMIN","MANAGER")
+                        .hasAnyRole("ADMIN", "MANAGER")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/orders/**")
-                        .hasAnyRole("ADMIN","MANAGER")
+                        .hasAnyRole("ADMIN", "MANAGER")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/users")
                         .hasRole("ADMIN")
+
+                        .requestMatchers(EndpointRequest.to("health", "prometheus"))
+                        .permitAll()
+
+                        .requestMatchers(EndpointRequest.to("info"))
+                        .authenticated()
 
                         .anyRequest().authenticated()
                 )

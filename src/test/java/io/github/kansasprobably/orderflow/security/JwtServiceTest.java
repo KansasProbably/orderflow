@@ -18,7 +18,7 @@ public class JwtServiceTest {
     @BeforeEach
     void setUp() {
         byte[] keyBytes = new byte[32];
-        Arrays.fill(keyBytes,(byte) 1);
+        Arrays.fill(keyBytes, (byte) 1);
 
         String secret = Base64.getEncoder()
                 .encodeToString(keyBytes);
@@ -67,7 +67,7 @@ public class JwtServiceTest {
         String token = jwtService.generateToken(userDetails);
 
         byte[] anotherKeyBytes = new byte[32];
-        Arrays.fill(anotherKeyBytes,(byte) 2);
+        Arrays.fill(anotherKeyBytes, (byte) 2);
 
         String anotherSecret = Base64.getEncoder().encodeToString(anotherKeyBytes);
 
@@ -89,7 +89,7 @@ public class JwtServiceTest {
         User user = createUser();
 
         byte[] keyBytes = new byte[32];
-        Arrays.fill(keyBytes,(byte) 1);
+        Arrays.fill(keyBytes, (byte) 1);
 
         String secret = Base64.getEncoder()
                 .encodeToString(keyBytes);

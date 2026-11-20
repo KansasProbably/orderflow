@@ -12,10 +12,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 import java.util.UUID;
+
 @NullMarked
 public interface OrderRepository
         extends JpaRepository<Order, UUID>,
-                JpaSpecificationExecutor<Order> {
+        JpaSpecificationExecutor<Order> {
 
     @EntityGraph(attributePaths = "items")
     @Query("""

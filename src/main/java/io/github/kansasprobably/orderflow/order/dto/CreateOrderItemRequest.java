@@ -9,7 +9,7 @@ public record CreateOrderItemRequest(
 
         @NotNull
         UUID warehouseId,
-        
+
         @NotNull
         UUID productId,
 

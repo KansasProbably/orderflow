@@ -41,7 +41,7 @@ public class Product {
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "product_status",nullable = false, length = 20)
+    @Column(name = "product_status", nullable = false, length = 20)
     private ProductStatus status;
 
     @CreationTimestamp

@@ -39,7 +39,7 @@ public class StockService {
 
     @Transactional
     public Stock release(UUID productId, UUID warehouseId, Integer quantity) {
-        Stock stock = stockRepository.findByProductIdAndWarehouseId(productId,warehouseId)
+        Stock stock = stockRepository.findByProductIdAndWarehouseId(productId, warehouseId)
                 .orElseThrow(() -> new StockNotFoundException(productId, warehouseId));
         stock.release(quantity);
         return stock;
@@ -81,7 +81,7 @@ public class StockService {
         Stock stock = stockRepository.findById(id)
                 .orElseThrow(() -> new StockNotFoundException(id));
 
-        return  stockMapper.toStockResponse(stock);
+        return stockMapper.toStockResponse(stock);
     }
 
     public StockResponse getStockByProductIdAndWarehouseId(UUID productId, UUID warehouseId) {

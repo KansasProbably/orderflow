@@ -126,7 +126,7 @@ public class ProductCacheIntegrationTest {
         assertThat(productCache)
                 .isNotNull();
 
-        productService.updateStatus(productId,new UpdateProductStatusRequest(ProductStatus.INACTIVE));
+        productService.updateStatus(productId, new UpdateProductStatusRequest(ProductStatus.INACTIVE));
 
         assertThat(productCache.get(productId))
                 .isNull();
@@ -145,14 +145,14 @@ public class ProductCacheIntegrationTest {
         assertThat(firstResponse.status())
                 .isEqualTo(ProductStatus.ACTIVE);
 
-        productService.updateStatus(productId,new UpdateProductStatusRequest(ProductStatus.INACTIVE));
+        productService.updateStatus(productId, new UpdateProductStatusRequest(ProductStatus.INACTIVE));
 
         ProductResponse responseAfterUpdate = productService.getProductById(productId);
 
         assertThat(responseAfterUpdate.status())
                 .isEqualTo(ProductStatus.INACTIVE);
 
-        verify(productRepository,times(3))
+        verify(productRepository, times(3))
                 .findById(productId);
 
     }
@@ -172,10 +172,10 @@ public class ProductCacheIntegrationTest {
 
         jdbcTemplate.update(
                 """
-                UPDATE products 
-                SET product_status = ?
-                WHERE id = ?
-                """,
+                        UPDATE products 
+                        SET product_status = ?
+                        WHERE id = ?
+                        """,
                 ProductStatus.INACTIVE.name(),
                 productId
         );
