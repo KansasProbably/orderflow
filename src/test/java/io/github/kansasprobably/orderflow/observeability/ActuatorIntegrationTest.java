@@ -1,6 +1,18 @@
 package io.github.kansasprobably.orderflow.observeability;
 
+import io.github.kansasprobably.orderflow.customer.Customer;
+import io.github.kansasprobably.orderflow.customer.CustomerRepository;
+import io.github.kansasprobably.orderflow.order.OrderRepository;
+import io.github.kansasprobably.orderflow.order.OrderService;
+import io.github.kansasprobably.orderflow.order.dto.CreateOrderItemRequest;
+import io.github.kansasprobably.orderflow.order.dto.CreateOrderRequest;
 import io.github.kansasprobably.orderflow.order.metrics.OrderMetrics;
+import io.github.kansasprobably.orderflow.product.Product;
+import io.github.kansasprobably.orderflow.product.ProductRepository;
+import io.github.kansasprobably.orderflow.stock.Stock;
+import io.github.kansasprobably.orderflow.stock.StockRepository;
+import io.github.kansasprobably.orderflow.warehouse.Warehouse;
+import io.github.kansasprobably.orderflow.warehouse.WarehouseRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +25,12 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -38,7 +56,23 @@ public class ActuatorIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private OrderMetrics orderMetrics;
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private StockRepository stockRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private WarehouseRepository warehouseRepository;
+
+    @Autowired
+    private OrderService orderService;
+
 
     @Test
     void shouldReturnUpHealthWithPostgresAndRedis() throws Exception {
@@ -50,11 +84,95 @@ public class ActuatorIntegrationTest {
     }
 
     @Test
-    void shouldExposeOrdersCreatedMetricsInPrometheus() throws Exception {
-        mockMvc.perform(get("/actuator/prometheus"))
+    void shouldIncrementOrdersCreatedMetricAfterOrderCreation() throws Exception {
+
+        String beforeResponse = mockMvc.perform(get("/actuator/prometheus"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(
-                        containsString("orders_creation_total")
-                ));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        double before = getMetricValue(beforeResponse,
+                "orders_creation_total");
+
+        Customer customer = createCustomer();
+        Product product = createProduct();
+        Warehouse warehouse = createWarehouse();
+        Stock stock = createStock(product,warehouse,100,0);
+
+        CreateOrderRequest request = new CreateOrderRequest(
+                customer.getId(),
+                List.of(
+                        new CreateOrderItemRequest(
+                                warehouse.getId(),
+                                product.getId(),
+                                2
+                        )
+                )
+        );
+
+        orderService.createOrder(request);
+
+        String afterResponse = mockMvc.perform(get("/actuator/prometheus"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        double after = getMetricValue(afterResponse,"orders_creation_total");
+
+        assertThat(after).isEqualTo(before + 1);
+    }
+
+    private double getMetricValue(String prometheusResponse, String metricName) {
+
+        String metricLine = prometheusResponse.lines()
+                .filter(line -> line.startsWith(metricName + " "))
+                .findFirst()
+                .orElseThrow();
+
+        String value = metricLine.split("\\s++")[1];
+
+        return Double.parseDouble(value);
+    }
+
+    private Product createProduct() {
+        return productRepository.save(
+                new Product(
+                        "SKU-001",
+                        "Iphone",
+                        new BigDecimal("100000.00")
+                )
+        );
+    }
+
+    private Customer createCustomer() {
+        return customerRepository.save(
+                new Customer(
+                        "Vasyan",
+                        "Vasya@mail.ru",
+                        "+79995221798"
+                )
+        );
+    }
+
+    private Warehouse createWarehouse() {
+        return warehouseRepository.save(
+                new Warehouse(
+                        "MSK-01",
+                        "Moscow warehouse"
+                )
+        );
+    }
+
+    private Stock createStock(Product product, Warehouse warehouse, Integer availableQuantity, Integer reservedQuantity) {
+        return stockRepository.save(
+                new Stock(
+                        product,
+                        warehouse,
+                        availableQuantity,
+                        reservedQuantity
+                )
+        );
     }
 }

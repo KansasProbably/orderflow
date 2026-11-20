@@ -78,7 +78,7 @@ management:
   endpoint:
     health:
       show-components: always
-      show-details: always
+      show-details: never
 
 
 

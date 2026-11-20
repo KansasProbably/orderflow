@@ -11,11 +11,14 @@ import io.github.kansasprobably.orderflow.order.event.OrderEventProducer;
 import io.github.kansasprobably.orderflow.order.exception.OrderNotFoundException;
 import io.github.kansasprobably.orderflow.order.mapper.OrderMapper;
 import io.github.kansasprobably.orderflow.order.metrics.OrderMetrics;
+import io.github.kansasprobably.orderflow.order.metrics.event.OrderConfirmedMetricEvent;
+import io.github.kansasprobably.orderflow.order.metrics.event.OrderCreatedMetricEvent;
 import io.github.kansasprobably.orderflow.order.specification.OrderSpecifications;
 import io.github.kansasprobably.orderflow.outbox.OutboxService;
 import io.github.kansasprobably.orderflow.stock.Stock;
 import io.github.kansasprobably.orderflow.stock.StockService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,6 +39,7 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final OutboxService outboxService;
     private final OrderMetrics orderMetrics;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest createOrderRequest) {
@@ -61,7 +65,7 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        orderMetrics.incrementCreated();
+        eventPublisher.publishEvent(new OrderCreatedMetricEvent(savedOrder.getId()));
 
         return orderMapper.toOrderResponse(savedOrder);
     }
@@ -89,7 +93,7 @@ public class OrderService {
 
         outboxService.saveOrderConfirmedEvent(orderConfirmedEvent);
 
-        orderMetrics.incrementConfirmed();
+        eventPublisher.publishEvent(new OrderConfirmedMetricEvent(order.getId()));
 
         return orderMapper.toOrderResponse(order);
     }
